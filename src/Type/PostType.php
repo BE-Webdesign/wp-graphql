@@ -12,22 +12,29 @@ class PostType extends BaseType {
 		$this->definition = new ObjectType([
 			'name' => 'Post',
 			'fields' => function() use ( $types ) {
-				return [
+				return array(
 					'id'           => $types->id(),
-					'guid'         => $types->string(),
-					'title'        => $types->string(),
-					'content'      => $types->string(),
-					'excerpt'      => $types->string(),
+					'author'       => $types->id(),
 					'date'         => $types->string(),
 					'date_gmt'     => $types->string(),
-					'modified'     => $types->string(),
-					'modified_gmt' => $types->string(),
-					'slug'         => $types->string(),
-					'type'         => $types->string(),
+					'content'      => $types->string(),
+					'title'        => $types->string(),
+					'excerpt'      => $types->string(),
+					'post_status'  => $types->string(),
 					'comment_status' => $types->string(),
 					'ping_status'  => $types->string(),
-					'format'       => $types->string(),
-				];
+					'slug'         => $types->string(),
+					'to_ping'      => $types->string(),
+					'pinged'       => $types->string(),
+					'modified'     => $types->string(),
+					'modified_gmt' => $types->string(),
+					'parent'       => $types->id(),
+					'guid'         => $types->string(),
+					'menu_order'   => $types->string(),
+					'type'         => $types->string(),
+					'mime_type'    => $types->string(),
+					'comment_count' => $types->int(),
+				);
 			},
 			'interfaces' => [
 				$types->node(),
@@ -44,6 +51,14 @@ class PostType extends BaseType {
 
 	public function id( \WP_Post $post, $args, AppContext $context) {
 		return $post->ID;
+	}
+
+	public function parent( \WP_Post $post, $args, AppContext $context) {
+		return $post->post_parent;
+	}
+
+	public function author( \WP_Post $post, $args, AppContext $context) {
+		return $post->post_author;
 	}
 
 	public function guid( \WP_Post $post, $args, AppContext $context) {
@@ -80,6 +95,10 @@ class PostType extends BaseType {
 
 	public function slug( \WP_Post $post, $args, AppContext $context) {
 		return $post->post_name;
+	}
+
+	public function mime_type( \WP_Post $post, $args, AppContext $context) {
+		return $post->post_mime_type;
 	}
 
 	public function type( \WP_Post $post, $args, AppContext $context) {

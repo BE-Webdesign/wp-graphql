@@ -70,12 +70,13 @@ class Query_Test extends WP_UnitTestCase {
 
 		$post_id = $this->factory->post->create( $post_args );
 
-		$query = "{ post(id: {$post_id}) { content, title } }";
+		$query = "{ post(id: {$post_id}) { content, title, author } }";
 		$expected = array(
 			'data' => array(
 				'post' => array(
 					'content' => 'Hi!',
 					'title' => 'Hello!',
+					'author' => '0',
 				),
 			),
 		);
@@ -106,6 +107,42 @@ class Query_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( $result, $expected );
+	}
+
+	/**
+	 * Tests the query for post.
+	 */
+	function test_post_introspection_fields() {
+		$query = '{__type(name: "Post") {fields {name}}}';
+		$expected = array(
+			'data' => array(
+				'__type' => array(
+					'fields' => array(
+						array( 'name' => 'id' ),
+						array( 'name' => 'author' ),
+						array( 'name' => 'date' ),
+						array( 'name' => 'date_gmt' ),
+						array( 'name' => 'content' ),
+						array( 'name' => 'title' ),
+						array( 'name' => 'excerpt' ),
+						array( 'name' => 'post_status' ),
+						array( 'name' => 'comment_status' ),
+						array( 'name' => 'ping_status' ),
+						array( 'name' => 'slug' ),
+						array( 'name' => 'to_ping' ),
+						array( 'name' => 'pinged' ),
+						array( 'name' => 'modified' ),
+						array( 'name' => 'modified_gmt' ),
+						array( 'name' => 'parent' ),
+						array( 'name' => 'guid' ),
+						array( 'name' => 'menu_order' ),
+						array( 'name' => 'type' ),
+						array( 'name' => 'mime_type' ),
+						array( 'name' => 'comment_count' ),
+					),
+				),
+			),
+		);
 	}
 
 	/**
