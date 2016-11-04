@@ -148,6 +148,83 @@ class Query_Test extends WP_UnitTestCase {
 	/**
 	 * Tests the query for post.
 	 */
+	function test_comment_query() {
+		$comment_args = array(
+			'comment_approved' => '1',
+			'comment_content' => 'Hi!',
+		);
+
+		$comment_id = $this->factory->comment->create( $comment_args );
+
+		$query = "{ comment(id: {$comment_id}) { content, approved } }";
+		$expected = array(
+			'data' => array(
+				'comment' => array(
+					'content' => 'Hi!',
+					'approved' => '1',
+				),
+			),
+		);
+
+		// Build the complete type system.
+		$type_system = new TypeSystem();
+
+		// Build request context that will be available in all field resolvers (as 3rd argument).
+		$app_context = new AppContext();
+
+		// Build GraphQL schema out of the query object type.
+		$schema = new Schema([
+			'query' => $type_system->query(),
+		]);
+
+		$data = array();
+		$data['query'] = $query;
+		$data['variables'] = null;
+
+		// Execute the query.
+		$result = GraphQL::execute(
+			$schema,
+			$data['query'],
+			null,
+			$app_context,
+			(array) $data['variables'],
+			null
+		);
+
+		$this->assertEquals( $result, $expected );
+	}
+
+	/**
+	 * Tests the fields schema for comments.
+	 */
+	function test_comment_introspection_fields() {
+		$query = '{__type(name: "Comment") {fields {name}}}';
+		$expected = array(
+			'data' => array(
+				'__type' => array(
+					'fields' => array(
+						array( 'name' => 'id' ),
+						array( 'name' => 'post' ),
+						array( 'name' => 'author' ),
+						array( 'name' => 'author_ip' ),
+						array( 'name' => 'date' ),
+						array( 'name' => 'date_gmt' ),
+						array( 'name' => 'content' ),
+						array( 'name' => 'karma' ),
+						array( 'name' => 'approved' ),
+						array( 'name' => 'agent' ),
+						array( 'name' => 'type' ),
+						array( 'name' => 'parent' ),
+						array( 'name' => 'user_id' ),
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Tests the query for post.
+	 */
 	function test_user_query() {
 		$user_args = array(
 			'role'       => 'editor',
