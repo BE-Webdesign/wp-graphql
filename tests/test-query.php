@@ -192,4 +192,62 @@ class Query_Test extends WP_UnitTestCase {
 
 		$this->assertEquals( $result, $expected );
 	}
+
+	/**
+	 * Tests the query for post.
+	 */
+	function test_user_introspection_fields() {
+		$query = '{__type(name: "User") {fields {name}}}';
+		$expected = array(
+			'data' => array(
+				'__type' => array(
+					'fields' => array(
+						array( 'name' => 'id' ),
+						array( 'name' => 'capabilities' ),
+						array( 'name' => 'cap_key' ),
+						array( 'name' => 'roles' ),
+						array( 'name' => 'extra_capabilities' ),
+						array( 'name' => 'email' ),
+						array( 'name' => 'first_name' ),
+						array( 'name' => 'last_name' ),
+						array( 'name' => 'description' ),
+						array( 'name' => 'username' ),
+						array( 'name' => 'name' ),
+						array( 'name' => 'registered_date' ),
+						array( 'name' => 'nickname' ),
+						array( 'name' => 'url' ),
+						array( 'name' => 'slug' ),
+						array( 'name' => 'locale' ),
+					),
+				),
+			),
+		);
+
+		// Build the complete type system.
+		$type_system = new TypeSystem();
+
+		// Build request context that will be available in all field resolvers (as 3rd argument).
+		$app_context = new AppContext();
+
+		// Build GraphQL schema out of the query object type.
+		$schema = new Schema([
+			'query' => $type_system->query(),
+		]);
+
+		$data = array();
+		$data['query'] = $query;
+		$data['variables'] = null;
+
+		// Execute the query.
+		$result = GraphQL::execute(
+			$schema,
+			$data['query'],
+			null,
+			$app_context,
+			(array) $data['variables'],
+			null
+		);
+
+		$this->assertEquals( $result, $expected );
+	}
 }
