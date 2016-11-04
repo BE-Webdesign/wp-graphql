@@ -96,7 +96,6 @@ function graphql_api_loaded() {
 	 */
 	$response = serve_graphql_request();
 	echo wp_json_encode( $response );
-	header( 'Content-Type: application/json; charset=UTF-8', true, 200 );
 
 	// We're done.
 	die();
