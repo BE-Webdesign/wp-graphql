@@ -27,7 +27,14 @@ class QueryType extends BaseType {
 				],
 				'user' => [
 					'type' => $types->user(),
-					'description' => 'Returns user by id (in range of 1-5)',
+					'description' => 'Returns user by id',
+					'args' => [
+						'id' => $types->nonNull( $types->id() ),
+					],
+				],
+				'comment' => [
+					'type' => $types->comment(),
+					'description' => 'Returns comment by id',
 					'args' => [
 						'id' => $types->nonNull( $types->id() ),
 					],
@@ -55,6 +62,20 @@ class QueryType extends BaseType {
 	}
 
 	/**
+	 * Comment field resolver.
+	 *
+	 * Note that comment is a field within the query type.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return WP_Comment Comment object.
+	 */
+	public function comment( $value, $args, AppContext $context ) {
+		return get_comment( $args['id'] );
+	}
+
+	/**
 	 * User field resolver.
 	 *
 	 * Note that user is a field within the user type.
@@ -62,7 +83,7 @@ class QueryType extends BaseType {
 	 * @param mixed      $value   Value for the resolver.
 	 * @param array      $args    List of arguments for this resolver.
 	 * @param AppContext $context Context object for the Application.
-	 * @return WP_Post Post object.
+	 * @return WP_User User object.
 	 */
 	public function user( $value, $args, AppContext $context ) {
 		return get_user_by( 'id', $args['id'] );

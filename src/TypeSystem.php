@@ -40,6 +40,11 @@ class TypeSystem {
 	private $user;
 
 	/**
+	 * Comment object type.
+	 */
+	private $comment;
+
+	/**
 	 * User object type.
 	 */
 	private $query;
@@ -56,6 +61,13 @@ class TypeSystem {
 	 */
 	public function user() {
 		return $this->user ?: ( $this->user = new UserType( $this ) );
+	}
+
+	/**
+	 * @return CommentType
+	 */
+	public function comment() {
+		return $this->comment ?: ( $this->comment = new CommentType( $this ) );
 	}
 
 	/**
