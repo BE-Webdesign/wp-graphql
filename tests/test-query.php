@@ -22,7 +22,7 @@ class Query_Test extends WP_UnitTestCase {
 	/**
 	 * Tests the query for hello.
 	 */
-	function test_hello_query() {
+	public function test_hello_query() {
 		$query = '{hello}';
 		$expected = array(
 			'data' => array(
@@ -30,38 +30,13 @@ class Query_Test extends WP_UnitTestCase {
 			),
 		);
 
-		// Build the complete type system.
-		$type_system = new TypeSystem();
-
-		// Build request context that will be available in all field resolvers (as 3rd argument).
-		$app_context = new AppContext();
-
-		// Build GraphQL schema out of the query object type.
-		$schema = new Schema([
-			'query' => $type_system->query(),
-		]);
-
-		$data = array();
-		$data['query'] = $query;
-		$data['variables'] = null;
-
-		// Execute the query.
-		$result = GraphQL::execute(
-			$schema,
-			$data['query'],
-			null,
-			$app_context,
-			(array) $data['variables'],
-			null
-		);
-
-		$this->assertEquals( $result, $expected );
+		$this->check_graphql_response( $query, $expected );
 	}
 
 	/**
 	 * Tests the query for post.
 	 */
-	function test_post_query() {
+	public function test_post_query() {
 		$post_args = array(
 			'post_status' => 'publish',
 			'post_content' => 'Hi!',
@@ -81,38 +56,13 @@ class Query_Test extends WP_UnitTestCase {
 			),
 		);
 
-		// Build the complete type system.
-		$type_system = new TypeSystem();
-
-		// Build request context that will be available in all field resolvers (as 3rd argument).
-		$app_context = new AppContext();
-
-		// Build GraphQL schema out of the query object type.
-		$schema = new Schema([
-			'query' => $type_system->query(),
-		]);
-
-		$data = array();
-		$data['query'] = $query;
-		$data['variables'] = null;
-
-		// Execute the query.
-		$result = GraphQL::execute(
-			$schema,
-			$data['query'],
-			null,
-			$app_context,
-			(array) $data['variables'],
-			null
-		);
-
-		$this->assertEquals( $result, $expected );
+		$this->check_graphql_response( $query, $expected );
 	}
 
 	/**
 	 * Tests the query for post.
 	 */
-	function test_post_introspection_fields() {
+	public function test_post_introspection_fields() {
 		$query = '{__type(name: "Post") {fields {name}}}';
 		$expected = array(
 			'data' => array(
@@ -143,12 +93,14 @@ class Query_Test extends WP_UnitTestCase {
 				),
 			),
 		);
+
+		$this->check_graphql_response( $query, $expected );
 	}
 
 	/**
 	 * Tests the query for post.
 	 */
-	function test_comment_query() {
+	public function test_comment_query() {
 		$comment_args = array(
 			'comment_approved' => '1',
 			'comment_content' => 'Hi!',
@@ -166,38 +118,13 @@ class Query_Test extends WP_UnitTestCase {
 			),
 		);
 
-		// Build the complete type system.
-		$type_system = new TypeSystem();
-
-		// Build request context that will be available in all field resolvers (as 3rd argument).
-		$app_context = new AppContext();
-
-		// Build GraphQL schema out of the query object type.
-		$schema = new Schema([
-			'query' => $type_system->query(),
-		]);
-
-		$data = array();
-		$data['query'] = $query;
-		$data['variables'] = null;
-
-		// Execute the query.
-		$result = GraphQL::execute(
-			$schema,
-			$data['query'],
-			null,
-			$app_context,
-			(array) $data['variables'],
-			null
-		);
-
-		$this->assertEquals( $result, $expected );
+		$this->check_graphql_response( $query, $expected );
 	}
 
 	/**
 	 * Tests the fields schema for comments.
 	 */
-	function test_comment_introspection_fields() {
+	public function test_comment_introspection_fields() {
 		$query = '{__type(name: "Comment") {fields {name}}}';
 		$expected = array(
 			'data' => array(
@@ -220,12 +147,14 @@ class Query_Test extends WP_UnitTestCase {
 				),
 			),
 		);
+
+		$this->check_graphql_response( $query, $expected );
 	}
 
 	/**
 	 * Tests the query for post.
 	 */
-	function test_user_query() {
+	public function test_user_query() {
 		$user_args = array(
 			'role'       => 'editor',
 			'user_email' => 'graphqliscool@withwp.luv',
@@ -242,38 +171,13 @@ class Query_Test extends WP_UnitTestCase {
 			),
 		);
 
-		// Build the complete type system.
-		$type_system = new TypeSystem();
-
-		// Build request context that will be available in all field resolvers (as 3rd argument).
-		$app_context = new AppContext();
-
-		// Build GraphQL schema out of the query object type.
-		$schema = new Schema([
-			'query' => $type_system->query(),
-		]);
-
-		$data = array();
-		$data['query'] = $query;
-		$data['variables'] = null;
-
-		// Execute the query.
-		$result = GraphQL::execute(
-			$schema,
-			$data['query'],
-			null,
-			$app_context,
-			(array) $data['variables'],
-			null
-		);
-
-		$this->assertEquals( $result, $expected );
+		$this->check_graphql_response( $query, $expected );
 	}
 
 	/**
 	 * Tests the query for post.
 	 */
-	function test_user_introspection_fields() {
+	public function test_user_introspection_fields() {
 		$query = '{__type(name: "User") {fields {name}}}';
 		$expected = array(
 			'data' => array(
@@ -300,6 +204,10 @@ class Query_Test extends WP_UnitTestCase {
 			),
 		);
 
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	private function check_graphql_response( $query, $expected ) {
 		// Build the complete type system.
 		$type_system = new TypeSystem();
 
