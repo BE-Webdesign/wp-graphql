@@ -1,0 +1,23 @@
+{
+    "name": "BEForever/graphql-wp",
+    "description": "GraphQL API for WordPress",
+    "license": "GPL-3.0",
+    "keywords": ["GraphQL"],
+    "authors": [
+        {
+            "name": "Edwin Cromley",
+            "email": "edwincromleydev@gmail.com"
+        }
+    ],
+    "require": {
+        "webonyx/graphql-php": "dev-master"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.0.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "BEForever\\WPGraphQL\\": "src/"
+        }
+    }
+}
