@@ -78,7 +78,6 @@ function graphql_api_register_rewrites() {
  * Fires when a request is parsed by WordPress and matches the GraphQL endpoint.
  *
  * @global WP             $wp             Current WordPress environment instance.
- * @global WP_REST_Server $wp_graphql_server ResponseHandler instance (usually WP_REST_Server).
  */
 function graphql_api_loaded() {
 	if ( empty( $GLOBALS['wp']->query_vars['graphql_path'] ) ) {
@@ -97,7 +96,6 @@ function graphql_api_loaded() {
 	 */
 	$response = serve_graphql_request();
 	echo wp_json_encode( $response );
-	header( 'Content-Type: application/json; charset=UTF-8', true, 200 );
 
 	// We're done.
 	die();

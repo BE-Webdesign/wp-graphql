@@ -47,6 +47,8 @@ class NodeType extends BaseType {
 			return $types->user();
 		} elseif ( $object instanceof Post ) {
 			return $types->post();
+		} elseif ( $object instanceof Comment ) {
+			return $types->comment();
 		}
 	}
 }
