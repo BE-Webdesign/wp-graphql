@@ -46,6 +46,13 @@ class QueryType extends BaseType {
 						'id' => $types->nonNull( $types->id() ),
 					],
 				),
+				'menu_item' => array(
+					'type' => $types->menu_item(),
+					'description' => 'Returns menu_item by id',
+					'args' => [
+						'id' => $types->nonNull( $types->id() ),
+					],
+				),
 				'hello' => Type::string(),
 			],
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
@@ -109,6 +116,24 @@ class QueryType extends BaseType {
 	public function term( $value, $args, AppContext $context ) {
 		return get_term( $args['id'] );
 	}
+
+	/**
+	 * Term field resolver.
+	 *
+	 * Note that user is a field within the user type.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return WP_Term Term object.
+	 */
+	public function menu_item( $value, $args, AppContext $context ) {
+		$menu_item = get_post( $args['id'] );
+
+		// If it is a nav menu item return it otherwise null.
+		return 'nav_menu_item' === $menu_item->post_type ? $menu_item : null;
+	}
+
 
 	/**
 	 * Hello resolver.
