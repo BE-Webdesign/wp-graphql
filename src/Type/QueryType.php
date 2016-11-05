@@ -60,6 +60,13 @@ class QueryType extends BaseType {
 						'id' => $types->nonNull( $types->id() ),
 					],
 				),
+				'menu_location' => array(
+					'type' => $types->menu_location(),
+					'description' => 'Returns menu location by name',
+					'args' => [
+						'slug' => $types->nonNull( $types->string() ),
+					],
+				),
 				'hello' => Type::string(),
 			],
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
@@ -156,6 +163,24 @@ class QueryType extends BaseType {
 
 		// If it is a nav menu item return it otherwise null.
 		return 'nav_menu' === $menu->taxonomy ? $menu : null;
+	}
+
+	/**
+	 * Menu field resolver.
+	 *
+	 * Note that user is a field within the user type.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return array Array of register nav menu data.
+	 */
+	public function menu_location( $value, $args, AppContext $context ) {
+		$menus = get_registered_nav_menus();
+		$name = $args['slug'];
+
+		// If it is a nav menu item return it otherwise null.
+		return isset( $menus[ $name ] ) ? array( $name => $menus[ $name ] ) : null;
 	}
 
 	/**

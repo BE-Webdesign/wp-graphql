@@ -5,6 +5,7 @@ use BEForever\WPGraphQL\Type\CommentType;
 use BEForever\WPGraphQL\Type\TermType;
 use BEForever\WPGraphQL\Type\MenuItemType;
 use BEForever\WPGraphQL\Type\MenuType;
+use BEForever\WPGraphQL\Type\MenuLocationType;
 use BEForever\WPGraphQL\Type\Enum\ContentFormatEnum;
 use BEForever\WPGraphQL\Type\Enum\ImageSizeEnumType;
 use BEForever\WPGraphQL\Type\Field\HtmlField;
@@ -63,6 +64,11 @@ class TypeSystem {
 	private $menu;
 
 	/**
+	 * Menu location object type.
+	 */
+	private $menu_location;
+
+	/**
 	 * Query object type.
 	 */
 	private $query;
@@ -107,6 +113,13 @@ class TypeSystem {
 	 */
 	public function menu() {
 		return $this->menu ?: ( $this->menu = new MenuType( $this ) );
+	}
+
+	/**
+	 * @return MenuLocationType
+	 */
+	public function menu_location() {
+		return $this->menu_location ?: ( $this->menu_location = new MenuLocationType( $this ) );
 	}
 
 	/**
