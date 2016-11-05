@@ -366,6 +366,46 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for term.
+	 */
+	public function test_menu_location_query() {
+		$registered_menus = get_registered_nav_menus();
+		$slug = key( $registered_menus );
+		$name = current( $registered_menus );
+
+		$query = "{ menu_location(slug: \"{$slug}\") { name, slug } }";
+		$expected = array(
+			'data' => array(
+				'menu_location' => array(
+					'name' => $name,
+					'slug' => $slug,
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for menu_location fields.
+	 */
+	public function test_menu_location_introspection_fields() {
+		$query = '{__type(name: "MenuLocation") {fields {name}}}';
+		$expected = array(
+			'data' => array(
+				'__type' => array(
+					'fields' => array(
+						array( 'name' => 'name' ),
+						array( 'name' => 'slug' ),
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests expected results against response from GraphQL query.
 	 *
 	 * @param string $query    GraphQL query string.
