@@ -60,7 +60,7 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the query for post.
+	 * Tests the query for post fields.
 	 */
 	public function test_post_introspection_fields() {
 		$query = '{__type(name: "Post") {fields {name}}}';
@@ -98,7 +98,7 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the query for post.
+	 * Tests the query for comment.
 	 */
 	public function test_comment_query() {
 		$comment_args = array(
@@ -152,7 +152,7 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the query for post.
+	 * Tests the query for user.
 	 */
 	public function test_user_query() {
 		$user_args = array(
@@ -175,7 +175,7 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the query for post.
+	 * Tests the query for user fields.
 	 */
 	public function test_user_introspection_fields() {
 		$query = '{__type(name: "User") {fields {name}}}';
@@ -207,6 +207,62 @@ class Query_Test extends WP_UnitTestCase {
 		$this->check_graphql_response( $query, $expected );
 	}
 
+	/**
+	 * Tests the query for term.
+	 */
+	public function test_term_query() {
+		$term_args = array(
+			'taxonomy' => 'category',
+			'name'     => 'Test',
+		);
+
+		$term_id = $this->factory->term->create( $term_args );
+
+		$query = "{ term(id: {$term_id}) { taxonomy, name } }";
+		$expected = array(
+			'data' => array(
+				'term' => array(
+					'taxonomy' => 'category',
+					'name'     => 'Test',
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for term fields.
+	 */
+	public function test_term_introspection_fields() {
+		$query = '{__type(name: "Term") {fields {name}}}';
+		$expected = array(
+			'data' => array(
+				'__type' => array(
+					'fields' => array(
+						array( 'name' => 'id' ),
+						array( 'name' => 'name' ),
+						array( 'name' => 'slug' ),
+						array( 'name' => 'group' ),
+						array( 'name' => 'taxonomy_id' ),
+						array( 'name' => 'taxonomy' ),
+						array( 'name' => 'description' ),
+						array( 'name' => 'parent' ),
+						array( 'name' => 'count' ),
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests expected results against response from GraphQL query.
+	 *
+	 * @param string $query    GraphQL query string.
+	 * @param mixed  $expected Expected data to be returned in response.
+	 */
 	private function check_graphql_response( $query, $expected ) {
 		// Build the complete type system.
 		$type_system = new TypeSystem();
