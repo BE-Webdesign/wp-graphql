@@ -258,6 +258,65 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for term.
+	 */
+	public function test_menu_item_query() {
+		$menu_item_args = array(
+			'post_type' => 'nav_menu_item',
+			'post_title' => 'Let\'s hope this works!',
+		);
+
+		$post_args = array(
+			'post_title' => 'Let\'s hope this works!',
+		);
+
+		// Nav menu items for whatever reason are posts.
+		$menu_item_id = $this->factory->post->create( $menu_item_args );
+
+		$post_id = $this->factory->post->create( $post_args );
+
+		// Match the nav menu Item to a post.
+		update_post_meta( $menu_item_id, '_menu_item_object_id', $post_id );
+
+		$query = "{ menu_item(id: {$menu_item_id}) { title, object_id } }";
+		$expected = array(
+			'data' => array(
+				'menu_item' => array(
+					'title' => 'Let\'s hope this works!',
+					'object_id' => "{$post_id}",
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for menu_item fields.
+	 */
+	public function test_menu_item_introspection_fields() {
+		$query = '{__type(name: "MenuItem") {fields {name}}}';
+		$expected = array(
+			'data' => array(
+				'__type' => array(
+					'fields' => array(
+						array( 'name' => 'id' ),
+						array( 'name' => 'title' ),
+						array( 'name' => 'type' ),
+						array( 'name' => 'object_id' ),
+						array( 'name' => 'object' ),
+						array( 'name' => 'target' ),
+						array( 'name' => 'xfn' ),
+						array( 'name' => 'url' ),
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests expected results against response from GraphQL query.
 	 *
 	 * @param string $query    GraphQL query string.

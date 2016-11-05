@@ -49,6 +49,10 @@ class NodeType extends BaseType {
 			return $types->post();
 		} elseif ( $object instanceof Comment ) {
 			return $types->comment();
+		} elseif ( $object instanceof Term ) {
+			return $types->term();
+		} elseif ( $object instanceof MenuItem ) {
+			return $types->menu_item();
 		}
 	}
 }
