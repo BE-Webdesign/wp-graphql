@@ -4,6 +4,7 @@ namespace BEForever\WPGraphQL;
 use BEForever\WPGraphQL\Type\CommentType;
 use BEForever\WPGraphQL\Type\TermType;
 use BEForever\WPGraphQL\Type\MenuItemType;
+use BEForever\WPGraphQL\Type\MenuType;
 use BEForever\WPGraphQL\Type\Enum\ContentFormatEnum;
 use BEForever\WPGraphQL\Type\Enum\ImageSizeEnumType;
 use BEForever\WPGraphQL\Type\Field\HtmlField;
@@ -47,17 +48,22 @@ class TypeSystem {
 	private $comment;
 
 	/**
-	 * Comment object type.
+	 * Term object type.
 	 */
 	private $term;
 
 	/**
-	 * Comment object type.
+	 * Menu item object type.
 	 */
 	private $menu_item;
 
 	/**
-	 * User object type.
+	 * Menu object type.
+	 */
+	private $menu;
+
+	/**
+	 * Query object type.
 	 */
 	private $query;
 
@@ -94,6 +100,13 @@ class TypeSystem {
 	 */
 	public function menu_item() {
 		return $this->menu_item ?: ( $this->menu_item = new MenuItemType( $this ) );
+	}
+
+	/**
+	 * @return MenuType
+	 */
+	public function menu() {
+		return $this->menu ?: ( $this->menu = new MenuType( $this ) );
 	}
 
 	/**

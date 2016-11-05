@@ -53,6 +53,13 @@ class QueryType extends BaseType {
 						'id' => $types->nonNull( $types->id() ),
 					],
 				),
+				'menu' => array(
+					'type' => $types->menu(),
+					'description' => 'Returns menu by id',
+					'args' => [
+						'id' => $types->nonNull( $types->id() ),
+					],
+				),
 				'hello' => Type::string(),
 			],
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
@@ -118,14 +125,14 @@ class QueryType extends BaseType {
 	}
 
 	/**
-	 * Term field resolver.
+	 * Menu item field resolver.
 	 *
 	 * Note that user is a field within the user type.
 	 *
 	 * @param mixed      $value   Value for the resolver.
 	 * @param array      $args    List of arguments for this resolver.
 	 * @param AppContext $context Context object for the Application.
-	 * @return WP_Term Term object.
+	 * @return WP_Post Post object. Nav menu items are posts.
 	 */
 	public function menu_item( $value, $args, AppContext $context ) {
 		$menu_item = get_post( $args['id'] );
@@ -134,6 +141,22 @@ class QueryType extends BaseType {
 		return 'nav_menu_item' === $menu_item->post_type ? $menu_item : null;
 	}
 
+	/**
+	 * Menu field resolver.
+	 *
+	 * Note that user is a field within the user type.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return WP_Term Term object. Menus are terms.
+	 */
+	public function menu( $value, $args, AppContext $context ) {
+		$menu = get_term( $args['id'] );
+
+		// If it is a nav menu item return it otherwise null.
+		return 'nav_menu' === $menu->taxonomy ? $menu : null;
+	}
 
 	/**
 	 * Hello resolver.
