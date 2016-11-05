@@ -53,6 +53,8 @@ class NodeType extends BaseType {
 			return $types->term();
 		} elseif ( $object instanceof MenuItem ) {
 			return $types->menu_item();
+		} elseif ( $object instanceof Menu ) {
+			return $types->menu();
 		}
 	}
 }

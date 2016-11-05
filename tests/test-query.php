@@ -317,6 +317,55 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for term.
+	 */
+	public function test_menu_query() {
+		$menu_args = array(
+			'taxonomy' => 'nav_menu',
+			'name' => 'Test Menu',
+			'slug' => 'test-menu',
+		);
+
+		// Nav menu items for whatever reason are posts.
+		$menu_id = $this->factory->term->create( $menu_args );
+
+		$query = "{ menu(id: {$menu_id}) { id, name, slug, group } }";
+		$expected = array(
+			'data' => array(
+				'menu' => array(
+					'id' => "{$menu_id}",
+					'name' => 'Test Menu',
+					'slug' => 'test-menu',
+					'group' => '0',
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for menu_item fields.
+	 */
+	public function test_menu_introspection_fields() {
+		$query = '{__type(name: "Menu") {fields {name}}}';
+		$expected = array(
+			'data' => array(
+				'__type' => array(
+					'fields' => array(
+						array( 'name' => 'id' ),
+						array( 'name' => 'name' ),
+						array( 'name' => 'slug' ),
+						array( 'name' => 'group' ),
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests expected results against response from GraphQL query.
 	 *
 	 * @param string $query    GraphQL query string.
