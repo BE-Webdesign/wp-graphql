@@ -453,6 +453,50 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for plugin.
+	 */
+	public function test_plugin_query() {
+		$slug = 'Akismet';
+		$plugin = $this->get_plugin( $slug );
+
+		$query = "{ plugin(slug: \"{$slug}\") { name, author, description } }";
+		$expected = array(
+			'data' => array(
+				'plugin' => array(
+					'name'   => $plugin['Name'],
+					'author' => $plugin['Author'],
+					'description'   => $plugin['Description'],
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for plugin fields.
+	 */
+	public function test_plugin_introspection_fields() {
+		$query = '{__type(name: "Plugin") {fields {name}}}';
+		$expected = array(
+			'data' => array(
+				'__type' => array(
+					'fields' => array(
+						array( 'name' => 'name' ),
+						array( 'name' => 'plugin_uri' ),
+						array( 'name' => 'description' ),
+						array( 'name' => 'author' ),
+						array( 'name' => 'author_uri' ),
+						array( 'name' => 'version' ),
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests expected results against response from GraphQL query.
 	 *
 	 * @param string $query    GraphQL query string.
@@ -485,5 +529,37 @@ class Query_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( $result, $expected );
+	}
+
+	/**
+	 * Displays a single plugin.
+	 *
+	 * This function is currently not ideal, as the best way to grab plugin data
+	 * currently requires require a file from wp-admin, which hasn't loaded yet.
+	 *
+	 * @param string $name Name of the plugin.
+	 * @return WP_Error|WP_REST_Response
+	 */
+	private function get_plugin( $name ) {
+		// Puts input into a url friendly slug format.
+		$slug = sanitize_title( $name );
+		$plugin = null;
+
+		// File has not loaded.
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		// This is missing must use and drop in plugins.
+		$plugins = apply_filters( 'all_plugins', get_plugins() );
+
+		foreach ( $plugins as $path => $plugin_data ) {
+			if ( sanitize_title( $plugin_data['Name'] ) === $slug ) {
+				$plugin         = $plugin_data;
+				$plugin['path'] = $path;
+				// Exit early when plugin is found.
+				break;
+			}
+		}
+
+		return $plugin;
 	}
 }

@@ -74,6 +74,13 @@ class QueryType extends BaseType {
 						'slug' => $types->nonNull( $types->string() ),
 					],
 				),
+				'plugin' => array(
+					'type' => $types->plugin(),
+					'description' => 'Returns plugin by name',
+					'args' => [
+						'slug' => $types->nonNull( $types->string() ),
+					],
+				),
 				'hello' => Type::string(),
 			],
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
@@ -198,12 +205,26 @@ class QueryType extends BaseType {
 	 * @param mixed      $value   Value for the resolver.
 	 * @param array      $args    List of arguments for this resolver.
 	 * @param AppContext $context Context object for the Application.
-	 * @return array Array of register nav menu data.
+	 * @return \WP_Theme Theme object.
 	 */
 	public function theme( $value, $args, AppContext $context ) {
 		$theme = wp_get_theme( $args['slug'] );
 
 		return $theme->exists() ? $theme : null;
+	}
+
+	/**
+	 * Plugin field resolver.
+	 *
+	 * Note that user is a field within the user type.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return array Array of plugin data.
+	 */
+	public function plugin( $value, $args, AppContext $context ) {
+		return $this->get_plugin( $args['slug'] );
 	}
 
 	/**
@@ -213,5 +234,37 @@ class QueryType extends BaseType {
 	 */
 	public function hello() {
 		return 'Welcome to WP GraphQL, I hope that you will enjoy this adventure!';
+	}
+
+	/**
+	 * Displays a single plugin.
+	 *
+	 * This function is currently not ideal, as the best way to grab plugin data
+	 * currently requires require a file from wp-admin, which hasn't loaded yet.
+	 *
+	 * @param string $name Name of the plugin.
+	 * @return WP_Error|WP_REST_Response
+	 */
+	private function get_plugin( $name ) {
+		// Puts input into a url friendly slug format.
+		$slug = sanitize_title( $name );
+		$plugin = null;
+
+		// File has not loaded.
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		// This is missing must use and drop in plugins.
+		$plugins = apply_filters( 'all_plugins', get_plugins() );
+
+		foreach ( $plugins as $path => $plugin_data ) {
+			if ( sanitize_title( $plugin_data['Name'] ) === $slug ) {
+				$plugin         = $plugin_data;
+				$plugin['path'] = $path;
+				// Exit early when plugin is found.
+				break;
+			}
+		}
+
+		return $plugin;
 	}
 }

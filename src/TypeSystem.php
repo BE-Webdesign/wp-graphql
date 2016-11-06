@@ -7,6 +7,7 @@ use BEForever\WPGraphQL\Type\MenuItemType;
 use BEForever\WPGraphQL\Type\MenuType;
 use BEForever\WPGraphQL\Type\MenuLocationType;
 use BEForever\WPGraphQL\Type\ThemeType;
+use BEForever\WPGraphQL\Type\PluginType;
 use BEForever\WPGraphQL\Type\NodeType;
 use BEForever\WPGraphQL\Type\QueryType;
 use BEForever\WPGraphQL\Type\UserType;
@@ -62,9 +63,14 @@ class TypeSystem {
 	private $menu_location;
 
 	/**
-	 * Query object type.
+	 * Theme object type.
 	 */
 	private $theme;
+
+	/**
+	 * Plugin object type.
+	 */
+	private $plugin;
 
 	/**
 	 * Query object type.
@@ -125,6 +131,13 @@ class TypeSystem {
 	 */
 	public function theme() {
 		return $this->theme ?: ( $this->theme = new ThemeType( $this ) );
+	}
+
+	/**
+	 * @return PluginType
+	 */
+	public function plugin() {
+		return $this->plugin ?: ( $this->plugin = new PluginType( $this ) );
 	}
 
 	/**
