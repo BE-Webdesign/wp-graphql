@@ -6,17 +6,10 @@ use BEForever\WPGraphQL\Type\TermType;
 use BEForever\WPGraphQL\Type\MenuItemType;
 use BEForever\WPGraphQL\Type\MenuType;
 use BEForever\WPGraphQL\Type\MenuLocationType;
-use BEForever\WPGraphQL\Type\Enum\ContentFormatEnum;
-use BEForever\WPGraphQL\Type\Enum\ImageSizeEnumType;
-use BEForever\WPGraphQL\Type\Field\HtmlField;
-use BEForever\WPGraphQL\Type\MentionType;
+use BEForever\WPGraphQL\Type\ThemeType;
 use BEForever\WPGraphQL\Type\NodeType;
 use BEForever\WPGraphQL\Type\QueryType;
-use BEForever\WPGraphQL\Type\Scalar\EmailType;
-use BEForever\WPGraphQL\Type\StoryType;
-use BEForever\WPGraphQL\Type\Scalar\UrlType;
 use BEForever\WPGraphQL\Type\UserType;
-use BEForever\WPGraphQL\Type\ImageType;
 use BEForever\WPGraphQL\Type\PostType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
@@ -67,6 +60,11 @@ class TypeSystem {
 	 * Menu location object type.
 	 */
 	private $menu_location;
+
+	/**
+	 * Query object type.
+	 */
+	private $theme;
 
 	/**
 	 * Query object type.
@@ -123,6 +121,13 @@ class TypeSystem {
 	}
 
 	/**
+	 * @return ThemeType
+	 */
+	public function theme() {
+		return $this->theme ?: ( $this->theme = new ThemeType( $this ) );
+	}
+
+	/**
 	 * @return QueryType
 	 */
 	public function query() {
@@ -136,7 +141,7 @@ class TypeSystem {
 	 * @return NodeType
 	 */
 	public function node() {
-		return $this->node ?: ($this->node = new NodeType($this));
+		return $this->node ?: ( $this->node = new NodeType( $this ) );
 	}
 
 	// Let's add internal types as well for consistent experience

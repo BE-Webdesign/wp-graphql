@@ -258,7 +258,7 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the query for term.
+	 * Tests the query for menu item.
 	 */
 	public function test_menu_item_query() {
 		$menu_item_args = array(
@@ -292,7 +292,7 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the query for menu_item fields.
+	 * Tests the query for menu item fields.
 	 */
 	public function test_menu_item_introspection_fields() {
 		$query = '{__type(name: "MenuItem") {fields {name}}}';
@@ -317,7 +317,7 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the query for term.
+	 * Tests the query for menu.
 	 */
 	public function test_menu_query() {
 		$menu_args = array(
@@ -345,7 +345,7 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the query for menu_item fields.
+	 * Tests the query for menu fields.
 	 */
 	public function test_menu_introspection_fields() {
 		$query = '{__type(name: "Menu") {fields {name}}}';
@@ -366,7 +366,7 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the query for term.
+	 * Tests the query for menu location.
 	 */
 	public function test_menu_location_query() {
 		$registered_menus = get_registered_nav_menus();
@@ -387,7 +387,7 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the query for menu_location fields.
+	 * Tests the query for menu location fields.
 	 */
 	public function test_menu_location_introspection_fields() {
 		$query = '{__type(name: "MenuLocation") {fields {name}}}';
@@ -397,6 +397,53 @@ class Query_Test extends WP_UnitTestCase {
 					'fields' => array(
 						array( 'name' => 'name' ),
 						array( 'name' => 'slug' ),
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for theme.
+	 */
+	public function test_theme_query() {
+		$slug = 'twentyfifteen';
+		$theme = wp_get_theme( $slug );
+
+		$query = "{ theme(slug: \"{$slug}\") { name, author, slug } }";
+		$expected = array(
+			'data' => array(
+				'theme' => array(
+					'name'   => $theme->get( 'Name' ),
+					'author' => $theme->get( 'Author' ),
+					'slug'   => $theme->get_stylesheet(),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for theme fields.
+	 */
+	public function test_theme_introspection_fields() {
+		$query = '{__type(name: "Theme") {fields {name}}}';
+		$expected = array(
+			'data' => array(
+				'__type' => array(
+					'fields' => array(
+						array( 'name' => 'slug' ),
+						array( 'name' => 'name' ),
+						array( 'name' => 'screenshot' ),
+						array( 'name' => 'theme_uri' ),
+						array( 'name' => 'description' ),
+						array( 'name' => 'author' ),
+						array( 'name' => 'author_uri' ),
+						array( 'name' => 'tags' ),
+						array( 'name' => 'version' ),
 					),
 				),
 			),
