@@ -497,6 +497,48 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for taxonomy.
+	 */
+	public function test_taxonomy_query() {
+		$name = 'category';
+		$taxonomy = get_taxonomy( $name );
+
+		$query = "{ taxonomy(name: \"{$name}\") { name, slug } }";
+		$expected = array(
+			'data' => array(
+				'taxonomy' => array(
+					'name' => 'Categories',
+					'slug' => 'category',
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for plugin fields.
+	 */
+	public function test_taxonomy_introspection_fields() {
+		$query = '{__type(name: "Taxonomy") {fields {name}}}';
+		$expected = array(
+			'data' => array(
+				'__type' => array(
+					'fields' => array(
+						array( 'name' => 'name' ),
+						array( 'name' => 'slug' ),
+						array( 'name' => 'description' ),
+						array( 'name' => 'show_cloud' ),
+						array( 'name' => 'hierarchical' ),
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests expected results against response from GraphQL query.
 	 *
 	 * @param string $query    GraphQL query string.
@@ -528,7 +570,7 @@ class Query_Test extends WP_UnitTestCase {
 			null
 		);
 
-		$this->assertEquals( $result, $expected );
+		$this->assertEquals( $expected, $result );
 	}
 
 	/**
