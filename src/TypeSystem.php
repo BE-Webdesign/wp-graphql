@@ -1,8 +1,11 @@
 <?php
 namespace BEForever\WPGraphQL;
 
+use BEForever\WPGraphQL\Type\PostType;
+use BEForever\WPGraphQL\Type\UserType;
 use BEForever\WPGraphQL\Type\CommentType;
 use BEForever\WPGraphQL\Type\TermType;
+use BEForever\WPGraphQL\Type\TaxonomyType;
 use BEForever\WPGraphQL\Type\MenuItemType;
 use BEForever\WPGraphQL\Type\MenuType;
 use BEForever\WPGraphQL\Type\MenuLocationType;
@@ -10,8 +13,6 @@ use BEForever\WPGraphQL\Type\ThemeType;
 use BEForever\WPGraphQL\Type\PluginType;
 use BEForever\WPGraphQL\Type\NodeType;
 use BEForever\WPGraphQL\Type\QueryType;
-use BEForever\WPGraphQL\Type\UserType;
-use BEForever\WPGraphQL\Type\PostType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
@@ -46,6 +47,11 @@ class TypeSystem {
 	 * Term object type.
 	 */
 	private $term;
+
+	/**
+	 * Taxonomy object type.
+	 */
+	private $taxonomy;
 
 	/**
 	 * Menu item object type.
@@ -102,7 +108,14 @@ class TypeSystem {
 	 * @return TermType
 	 */
 	public function term() {
-		return $this->term ?: ( $this->query = new TermType( $this ) );
+		return $this->term ?: ( $this->term = new TermType( $this ) );
+	}
+
+	/**
+	 * @return TaxonomyType
+	 */
+	public function taxonomy() {
+		return $this->taxonomy ?: ( $this->taxonomy = new TaxonomyType( $this ) );
 	}
 
 	/**
@@ -157,8 +170,7 @@ class TypeSystem {
 		return $this->node ?: ( $this->node = new NodeType( $this ) );
 	}
 
-	// Let's add internal types as well for consistent experience
-
+	// Add basic scalar types.
 	public function boolean() {
 		return Type::boolean();
 	}

@@ -46,6 +46,13 @@ class QueryType extends BaseType {
 						'id' => $types->nonNull( $types->id() ),
 					],
 				),
+				'taxonomy' => array(
+					'type' => $types->taxonomy(),
+					'description' => 'Returns taxonomy by name',
+					'args' => [
+						'name' => $types->nonNull( $types->string() ),
+					],
+				),
 				'menu_item' => array(
 					'type' => $types->menu_item(),
 					'description' => 'Returns menu_item by id',
@@ -143,6 +150,22 @@ class QueryType extends BaseType {
 	 */
 	public function term( $value, $args, AppContext $context ) {
 		return get_term( $args['id'] );
+	}
+
+	/**
+	 * Term field resolver.
+	 *
+	 * Note that user is a field within the user type.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return WP_Taxonomy Taxonomy object.
+	 */
+	public function taxonomy( $value, $args, AppContext $context ) {
+		$taxonomy = get_taxonomy( $args['name'] );
+
+		return false !== $taxonomy ? $taxonomy : null;
 	}
 
 	/**
