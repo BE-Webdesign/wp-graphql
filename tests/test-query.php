@@ -539,6 +539,24 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for users.
+	 */
+	public function test_users_query() {
+		$query = '{ users(first: 2) { id } }';
+		$expected = array(
+			'data' => array(
+				'users' => array(
+					array(
+						'id' => 1,
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests expected results against response from GraphQL query.
 	 *
 	 * @param string $query    GraphQL query string.

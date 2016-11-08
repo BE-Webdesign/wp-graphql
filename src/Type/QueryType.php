@@ -32,6 +32,15 @@ class QueryType extends BaseType {
 						'id' => $types->nonNull( $types->id() ),
 					],
 				],
+				'users' => [
+					'type' => $types->listOf( $types->user() ),
+					'description' => 'Returns users based on collection args',
+					'args' => [
+						// Limit and after are equivalent to per_page and offset.
+						'first' => $types->int(),
+						'after' => $types->int(),
+					],
+				],
 				'comment' => [
 					'type' => $types->comment(),
 					'description' => 'Returns comment by id',
@@ -139,9 +148,33 @@ class QueryType extends BaseType {
 	}
 
 	/**
-	 * Term field resolver.
+	 * Users field resolver.
 	 *
-	 * Note that user is a field within the user type.
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return array List of WP_User objects.
+	 */
+	public function users( $value, $args, AppContext $context ) {
+		$query_args = array(
+			'orderby' => 'ID',
+		);
+
+		if ( isset( $args['first'] ) ) {
+			$query_args['number'] = $args['first'];
+		}
+
+		if ( isset( $args['after'] ) ) {
+			$query_args['offset'] = $args['after'];
+		}
+
+		$users_query = new \WP_User_Query( $query_args );
+		$users_query->query();
+		return $users_query->get_results();
+	}
+
+	/**
+	 * Term field resolver.
 	 *
 	 * @param mixed      $value   Value for the resolver.
 	 * @param array      $args    List of arguments for this resolver.
@@ -154,8 +187,6 @@ class QueryType extends BaseType {
 
 	/**
 	 * Term field resolver.
-	 *
-	 * Note that user is a field within the user type.
 	 *
 	 * @param mixed      $value   Value for the resolver.
 	 * @param array      $args    List of arguments for this resolver.
@@ -170,8 +201,6 @@ class QueryType extends BaseType {
 
 	/**
 	 * Menu item field resolver.
-	 *
-	 * Note that user is a field within the user type.
 	 *
 	 * @param mixed      $value   Value for the resolver.
 	 * @param array      $args    List of arguments for this resolver.
@@ -188,8 +217,6 @@ class QueryType extends BaseType {
 	/**
 	 * Menu field resolver.
 	 *
-	 * Note that user is a field within the user type.
-	 *
 	 * @param mixed      $value   Value for the resolver.
 	 * @param array      $args    List of arguments for this resolver.
 	 * @param AppContext $context Context object for the Application.
@@ -204,8 +231,6 @@ class QueryType extends BaseType {
 
 	/**
 	 * Menu location field resolver.
-	 *
-	 * Note that user is a field within the user type.
 	 *
 	 * @param mixed      $value   Value for the resolver.
 	 * @param array      $args    List of arguments for this resolver.
@@ -223,8 +248,6 @@ class QueryType extends BaseType {
 	/**
 	 * Theme field resolver.
 	 *
-	 * Note that user is a field within the user type.
-	 *
 	 * @param mixed      $value   Value for the resolver.
 	 * @param array      $args    List of arguments for this resolver.
 	 * @param AppContext $context Context object for the Application.
@@ -238,8 +261,6 @@ class QueryType extends BaseType {
 
 	/**
 	 * Plugin field resolver.
-	 *
-	 * Note that user is a field within the user type.
 	 *
 	 * @param mixed      $value   Value for the resolver.
 	 * @param array      $args    List of arguments for this resolver.
