@@ -611,17 +611,21 @@ class Query_Test extends WP_UnitTestCase {
 		$comment_args = array(
 			'comment_approved' => '1',
 			'comment_content' => 'Hi!',
+			'comment_author' => $this->admin,
 		);
 
 		$comment_id = $this->factory->comment->create( $comment_args );
 
-		$query = '{ comments(first: 2) { id, content } }';
+		$query = '{ comments(first: 2) { id, content, author { id } } }';
 		$expected = array(
 			'data' => array(
 				'comments' => array(
 					array(
 						'id' => $comment_id,
 						'content' => 'Hi!',
+						'author' => array(
+							'id' => $this->admin,
+						),
 					),
 				),
 			),
