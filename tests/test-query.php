@@ -557,6 +557,152 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for posts.
+	 */
+	public function test_posts_query() {
+		$post_args = array(
+			'post_status' => 'publish',
+			'post_content' => 'Hi!',
+			'post_title' => 'Hello!',
+		);
+
+		$post_id = $this->factory->post->create( $post_args );
+
+		$query = '{ posts(first: 2) { id, title, content } }';
+		$expected = array(
+			'data' => array(
+				'posts' => array(
+					array(
+						'id' => $post_id,
+						'title' => 'Hello!',
+						'content' => 'Hi!',
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for comments.
+	 */
+	public function test_comments_query() {
+		$comment_args = array(
+			'comment_approved' => '1',
+			'comment_content' => 'Hi!',
+		);
+
+		$comment_id = $this->factory->comment->create( $comment_args );
+
+		$query = '{ comments(first: 2) { id, content } }';
+		$expected = array(
+			'data' => array(
+				'comments' => array(
+					array(
+						'id' => $comment_id,
+						'content' => 'Hi!',
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for terms.
+	 */
+	public function test_terms_query() {
+		$term_args = array(
+			'taxonomy' => 'post_tag',
+			'name'     => 'Test',
+		);
+
+		$term_id = $this->factory->term->create( $term_args );
+
+		$query = '{ terms{ name, taxonomy, count } }';
+		$expected = array(
+			'data' => array(
+				'terms' => array(
+					array(
+						'name' => 'Test',
+						'taxonomy' => 'post_tag',
+						'count' => 0,
+					),
+					array(
+						'name' => 'Uncategorized',
+						'taxonomy' => 'category',
+						'count' => 0,
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for terms.
+	 */
+	public function test_taxonomies_query() {
+		$query = '{ taxonomies(first: 2) { name } }';
+		$expected = array(
+			'data' => array(
+				'taxonomies' => array(
+					array(
+						'name' => 'Categories',
+					),
+					array(
+						'name' => 'Tags',
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for themes.
+	 */
+	public function test_themes_query() {
+		$query = '{ themes(first: 2) { name } }';
+		$expected = array(
+			'data' => array(
+				'themes' => array(
+					array(
+						'name' => 'Twenty Eleven',
+					),
+					array(
+						'name' => 'Twenty Fifteen',
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for plugins.
+	 */
+	public function test_plugins_query() {
+		$query = '{ plugins(first: 1) { name } }';
+		$expected = array(
+			'data' => array(
+				'plugins' => array(
+					array(
+						'name' => 'Akismet',
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests expected results against response from GraphQL query.
 	 *
 	 * @param string $query    GraphQL query string.

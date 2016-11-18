@@ -39,11 +39,6 @@ class TypeSystem {
 	private $user;
 
 	/**
-	 * Users object type.
-	 */
-	private $users;
-
-	/**
 	 * Comment object type.
 	 */
 	private $comment;

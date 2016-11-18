@@ -25,6 +25,15 @@ class QueryType extends BaseType {
 						'id' => $types->nonNull( $types->id() ),
 					],
 				],
+				'posts' => [
+					'type' => $types->listOf( $types->post() ),
+					'description' => 'Returns posts based on collection args',
+					'args' => [
+						// First and after are equivalent to per_page and offset.
+						'first' => $types->int(),
+						'after' => $types->int(),
+					],
+				],
 				'user' => [
 					'type' => $types->user(),
 					'description' => 'Returns user by id',
@@ -48,6 +57,15 @@ class QueryType extends BaseType {
 						'id' => $types->nonNull( $types->id() ),
 					],
 				],
+				'comments' => [
+					'type' => $types->listOf( $types->comment() ),
+					'description' => 'Returns comments based on collection args',
+					'args' => [
+						// Limit and after are equivalent to per_page and offset.
+						'first' => $types->int(),
+						'after' => $types->int(),
+					],
+				],
 				'term' => array(
 					'type' => $types->term(),
 					'description' => 'Returns term by id',
@@ -55,6 +73,15 @@ class QueryType extends BaseType {
 						'id' => $types->nonNull( $types->id() ),
 					],
 				),
+				'terms' => [
+					'type' => $types->listOf( $types->term() ),
+					'description' => 'Returns terms based on collection args',
+					'args' => [
+						// Limit and after are equivalent to per_page and offset.
+						'first' => $types->int(),
+						'after' => $types->int(),
+					],
+				],
 				'taxonomy' => array(
 					'type' => $types->taxonomy(),
 					'description' => 'Returns taxonomy by name',
@@ -62,6 +89,15 @@ class QueryType extends BaseType {
 						'name' => $types->nonNull( $types->string() ),
 					],
 				),
+				'taxonomies' => [
+					'type' => $types->listOf( $types->taxonomy() ),
+					'description' => 'Returns taxonomies based on collection args',
+					'args' => [
+						// Limit and after are equivalent to per_page and offset.
+						'first' => $types->int(),
+						'after' => $types->int(),
+					],
+				],
 				'menu_item' => array(
 					'type' => $types->menu_item(),
 					'description' => 'Returns menu_item by id',
@@ -90,6 +126,15 @@ class QueryType extends BaseType {
 						'slug' => $types->nonNull( $types->string() ),
 					],
 				),
+				'themes' => [
+					'type' => $types->listOf( $types->theme() ),
+					'description' => 'Returns themes based on collection args',
+					'args' => [
+						// Limit and after are equivalent to per_page and offset.
+						'first' => $types->int(),
+						'after' => $types->int(),
+					],
+				],
 				'plugin' => array(
 					'type' => $types->plugin(),
 					'description' => 'Returns plugin by name',
@@ -97,6 +142,15 @@ class QueryType extends BaseType {
 						'slug' => $types->nonNull( $types->string() ),
 					],
 				),
+				'plugins' => [
+					'type' => $types->listOf( $types->plugin() ),
+					'description' => 'Returns plugins based on collection args',
+					'args' => [
+						// Limit and after are equivalent to per_page and offset.
+						'first' => $types->int(),
+						'after' => $types->int(),
+					],
+				],
 				'hello' => Type::string(),
 			],
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
@@ -120,6 +174,30 @@ class QueryType extends BaseType {
 	}
 
 	/**
+	 * Posts field resolver.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return array List of WP_Post objects.
+	 */
+	public function posts( $value, $args, AppContext $context ) {
+		$query_args = array();
+
+		if ( isset( $args['first'] ) ) {
+			$query_args['posts_per_page'] = $args['first'];
+		}
+
+		if ( isset( $args['after'] ) ) {
+			$query_args['offset'] = $args['after'];
+		}
+
+		$posts_query = new \WP_Query( $query_args );
+		$posts = $posts_query->get_posts();
+		return ! empty( $posts ) ? $posts : null;
+	}
+
+	/**
 	 * Comment field resolver.
 	 *
 	 * Note that comment is a field within the query type.
@@ -131,6 +209,30 @@ class QueryType extends BaseType {
 	 */
 	public function comment( $value, $args, AppContext $context ) {
 		return get_comment( $args['id'] );
+	}
+
+	/**
+	 * Comments field resolver.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return array List of WP_Comment objects.
+	 */
+	public function comments( $value, $args, AppContext $context ) {
+		$query_args = array();
+
+		if ( isset( $args['first'] ) ) {
+			$query_args['number'] = $args['first'];
+		}
+
+		if ( isset( $args['after'] ) ) {
+			$query_args['offset'] = $args['after'];
+		}
+
+		$comments_query = new \WP_Comment_Query( $query_args );
+		$comments = $comments_query->get_comments();
+		return ! empty( $comments ) ? $comments : null;
 	}
 
 	/**
@@ -186,6 +288,33 @@ class QueryType extends BaseType {
 	}
 
 	/**
+	 * Terms field resolver.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return array List of WP_User objects.
+	 */
+	public function terms( $value, $args, AppContext $context ) {
+		$query_args = array(
+			'hide_empty' => false,
+		);
+
+		if ( isset( $args['first'] ) ) {
+			$query_args['number'] = $args['first'];
+		}
+
+		if ( isset( $args['after'] ) ) {
+			$query_args['offset'] = $args['after'];
+		}
+
+		$terms_query = new \WP_Term_Query();
+		$terms = $terms_query->query( $query_args );
+
+		return ! empty( $terms ) ? $terms : null;
+	}
+
+	/**
 	 * Term field resolver.
 	 *
 	 * @param mixed      $value   Value for the resolver.
@@ -197,6 +326,27 @@ class QueryType extends BaseType {
 		$taxonomy = get_taxonomy( $args['name'] );
 
 		return false !== $taxonomy ? $taxonomy : null;
+	}
+
+	/**
+	 * Term field resolver.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return WP_Taxonomy Taxonomy object.
+	 */
+	public function taxonomies( $value, $args, AppContext $context ) {
+		$taxonomies = get_taxonomies( '', 'objects' );
+
+		if ( isset( $args['first'] ) || isset( $args['after'] ) ) {
+			$limit = isset( $args['first'] ) ? $args['first'] : count( $taxonomies );
+			$offset = isset( $args['after'] ) ? $args['after'] : 0;
+
+			$taxonomies = array_splice( $taxonomies, $offset, $limit );
+		}
+
+		return ! empty( $taxonomies ) ? $taxonomies : null;
 	}
 
 	/**
@@ -260,6 +410,27 @@ class QueryType extends BaseType {
 	}
 
 	/**
+	 * Themes field resolver.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return \WP_Theme Theme object.
+	 */
+	public function themes( $value, $args, AppContext $context ) {
+		$themes = wp_get_themes();
+
+		if ( isset( $args['first'] ) || isset( $args['after'] ) ) {
+			$limit = isset( $args['first'] ) ? $args['first'] : count( $themes );
+			$offset = isset( $args['after'] ) ? $args['after'] : 0;
+
+			$themes = array_splice( $themes, $offset, $limit );
+		}
+
+		return ! empty( $themes ) ? $themes : null;
+	}
+
+	/**
 	 * Plugin field resolver.
 	 *
 	 * @param mixed      $value   Value for the resolver.
@@ -269,6 +440,27 @@ class QueryType extends BaseType {
 	 */
 	public function plugin( $value, $args, AppContext $context ) {
 		return $this->get_plugin( $args['slug'] );
+	}
+
+	/**
+	 * Plugins field resolver.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return array Array of plugin data.
+	 */
+	public function plugins( $value, $args, AppContext $context ) {
+		$plugins = $this->get_plugins();
+
+		if ( isset( $args['first'] ) || isset( $args['after'] ) ) {
+			$limit = isset( $args['first'] ) ? $args['first'] : count( $plugins );
+			$offset = isset( $args['after'] ) ? $args['after'] : 0;
+
+			$plugins = array_splice( $plugins, $offset, $limit );
+		}
+
+		return ! empty( $plugins ) ? $plugins : null;
 	}
 
 	/**
@@ -287,7 +479,7 @@ class QueryType extends BaseType {
 	 * currently requires require a file from wp-admin, which hasn't loaded yet.
 	 *
 	 * @param string $name Name of the plugin.
-	 * @return WP_Error|WP_REST_Response
+	 * @return array Array of plugin data.
 	 */
 	private function get_plugin( $name ) {
 		// Puts input into a url friendly slug format.
@@ -310,5 +502,21 @@ class QueryType extends BaseType {
 		}
 
 		return $plugin;
+	}
+
+	/**
+	 * Returns a list of plugins.
+	 *
+	 * @return array Array of an array of plugin data.
+	 */
+	private function get_plugins() {
+		$plugins = array();
+		// File has not loaded.
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		// This is missing must use and drop in plugins.
+		$plugins = apply_filters( 'all_plugins', get_plugins() );
+
+		return $plugins;
 	}
 }
