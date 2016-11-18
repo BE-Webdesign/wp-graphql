@@ -12,7 +12,7 @@ class PostType extends BaseType {
 		$this->definition = new ObjectType([
 			'name' => 'Post',
 			'fields' => function() use ( $types ) {
-				$fields = array(
+				return array(
 					'id'            => $types->id(),
 					'author'        => $types->user(),
 					'date'          => $types->string(),
