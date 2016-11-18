@@ -15,7 +15,7 @@ class CommentType extends BaseType {
 				return array(
 					'id'           => $types->id(),
 					'post'         => $types->id(),
-					'author'       => $types->string(),
+					'author'       => $types->user(),
 					'author_ip'    => $types->string(),
 					'date'         => $types->string(),
 					'date_gmt'     => $types->string(),
@@ -54,7 +54,7 @@ class CommentType extends BaseType {
 	 * This for whatever reason is the author name not id for the author.
 	 */
 	public function author( \WP_Comment $comment, $args, AppContext $context) {
-		return $comment->comment_author;
+		return get_user_by( 'id', $comment->comment_author );
 	}
 
 	public function author_ip( \WP_Comment $comment, $args, AppContext $context) {
