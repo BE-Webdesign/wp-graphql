@@ -18,6 +18,23 @@ use \GraphQL\Error\FormattedError;
  * Sample test case.
  */
 class Query_Test extends WP_UnitTestCase {
+	/**
+	 * This function is run before each method
+	 */
+	public function setUp() {
+		parent::setUp();
+
+		$this->admin = $this->factory->user->create( array(
+			'role' => 'admin',
+		) );
+	}
+
+	/**
+	 * Runs after each method.
+	 */
+	public function tearDown() {
+		parent::tearDown();
+	}
 
 	/**
 	 * Tests the query for hello.
@@ -41,17 +58,20 @@ class Query_Test extends WP_UnitTestCase {
 			'post_status' => 'publish',
 			'post_content' => 'Hi!',
 			'post_title' => 'Hello!',
+			'post_author' => $this->admin,
 		);
 
 		$post_id = $this->factory->post->create( $post_args );
 
-		$query = "{ post(id: {$post_id}) { content, title, author } }";
+		$query = "{ post(id: {$post_id}) { content, title, author{ id } } }";
 		$expected = array(
 			'data' => array(
 				'post' => array(
 					'content' => 'Hi!',
 					'title' => 'Hello!',
-					'author' => '0',
+					'author' => array(
+						'id' => $this->admin,
+					),
 				),
 			),
 		);
@@ -542,7 +562,7 @@ class Query_Test extends WP_UnitTestCase {
 	 * Tests the query for users.
 	 */
 	public function test_users_query() {
-		$query = '{ users(first: 2) { id } }';
+		$query = '{ users(first: 1) { id } }';
 		$expected = array(
 			'data' => array(
 				'users' => array(
