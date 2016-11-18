@@ -13,27 +13,27 @@ class PostType extends BaseType {
 			'name' => 'Post',
 			'fields' => function() use ( $types ) {
 				return array(
-					'id'           => $types->id(),
-					'author'       => $types->id(),
-					'date'         => $types->string(),
-					'date_gmt'     => $types->string(),
-					'content'      => $types->string(),
-					'title'        => $types->string(),
-					'excerpt'      => $types->string(),
-					'post_status'  => $types->string(),
+					'id'             => $types->id(),
+					'author'         => $types->user(),
+					'date'           => $types->string(),
+					'date_gmt'       => $types->string(),
+					'content'        => $types->string(),
+					'title'          => $types->string(),
+					'excerpt'        => $types->string(),
+					'post_status'    => $types->string(),
 					'comment_status' => $types->string(),
-					'ping_status'  => $types->string(),
-					'slug'         => $types->string(),
-					'to_ping'      => $types->string(),
-					'pinged'       => $types->string(),
-					'modified'     => $types->string(),
-					'modified_gmt' => $types->string(),
-					'parent'       => $types->id(),
-					'guid'         => $types->string(),
-					'menu_order'   => $types->string(),
-					'type'         => $types->string(),
-					'mime_type'    => $types->string(),
-					'comment_count' => $types->int(),
+					'ping_status'    => $types->string(),
+					'slug'           => $types->string(),
+					'to_ping'        => $types->string(),
+					'pinged'         => $types->string(),
+					'modified'       => $types->string(),
+					'modified_gmt'   => $types->string(),
+					'parent'         => $types->id(),
+					'guid'           => $types->string(),
+					'menu_order'     => $types->string(),
+					'type'           => $types->string(),
+					'mime_type'      => $types->string(),
+					'comment_count'  => $types->int(),
 				);
 			},
 			'interfaces' => [
@@ -49,59 +49,59 @@ class PostType extends BaseType {
 		]);
 	}
 
-	public function id( \WP_Post $post, $args, AppContext $context) {
+	public function id( \WP_Post $post, $args, AppContext $context ) {
 		return $post->ID;
 	}
 
-	public function parent( \WP_Post $post, $args, AppContext $context) {
+	public function parent( \WP_Post $post, $args, AppContext $context ) {
 		return $post->post_parent;
 	}
 
-	public function author( \WP_Post $post, $args, AppContext $context) {
-		return $post->post_author;
+	public function author( \WP_Post $post, $args, AppContext $context ) {
+		return get_user_by( 'id', $post->post_author );
 	}
 
-	public function guid( \WP_Post $post, $args, AppContext $context) {
+	public function guid( \WP_Post $post, $args, AppContext $context ) {
 		return $post->guid;
 	}
 
-	public function title( \WP_Post $post, $args, AppContext $context) {
+	public function title( \WP_Post $post, $args, AppContext $context ) {
 		return $post->post_title;
 	}
 
-	public function content( \WP_Post $post, $args, AppContext $context) {
+	public function content( \WP_Post $post, $args, AppContext $context ) {
 		return $post->post_content;
 	}
 
-	public function excerpt( \WP_Post $post, $args, AppContext $context) {
+	public function excerpt( \WP_Post $post, $args, AppContext $context ) {
 		return $post->post_excerpt;
 	}
 
-	public function date( \WP_Post $post, $args, AppContext $context) {
+	public function date( \WP_Post $post, $args, AppContext $context ) {
 		return $post->post_date;
 	}
 
-	public function date_gmt( \WP_Post $post, $args, AppContext $context) {
+	public function date_gmt( \WP_Post $post, $args, AppContext $context ) {
 		return $post->post_date_gmt;
 	}
 
-	public function modified( \WP_Post $post, $args, AppContext $context) {
+	public function modified( \WP_Post $post, $args, AppContext $context ) {
 		return $post->post_modified;
 	}
 
-	public function modified_gmt( \WP_Post $post, $args, AppContext $context) {
+	public function modified_gmt( \WP_Post $post, $args, AppContext $context ) {
 		return $post->post_modified_gmt;
 	}
 
-	public function slug( \WP_Post $post, $args, AppContext $context) {
+	public function slug( \WP_Post $post, $args, AppContext $context ) {
 		return $post->post_name;
 	}
 
-	public function mime_type( \WP_Post $post, $args, AppContext $context) {
+	public function mime_type( \WP_Post $post, $args, AppContext $context ) {
 		return $post->post_mime_type;
 	}
 
-	public function type( \WP_Post $post, $args, AppContext $context) {
+	public function type( \WP_Post $post, $args, AppContext $context ) {
 		return $post->post_type;
 	}
 }
