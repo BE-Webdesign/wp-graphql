@@ -672,10 +672,10 @@ class Query_Test extends WP_UnitTestCase {
 			'data' => array(
 				'themes' => array(
 					array(
-						'name' => 'Twenty Eleven',
+						'name' => 'Twenty Fifteen',
 					),
 					array(
-						'name' => 'Twenty Fifteen',
+						'name' => 'Twenty Fourteen',
 					),
 				),
 			),
