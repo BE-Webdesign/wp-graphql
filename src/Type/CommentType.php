@@ -43,7 +43,7 @@ class CommentType extends BaseType {
 
 	// Testing to see if it will resolve based on interface.
 	public function id( \WP_Comment $comment, $args, AppContext $context) {
-		return $comment->ID;
+		return $comment->comment_ID;
 	}
 
 	public function post( \WP_Comment $comment, $args, AppContext $context) {
