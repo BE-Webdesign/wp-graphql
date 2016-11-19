@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>WP GraphQL by BE-Webdesign</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">WP GraphQL</h1>
+      <h2 class="project-tagline">A GraphQL API for WordPress</h2>
+      <a href="https://github.com/BE-Webdesign/wp-graphql" class="btn">View on GitHub</a>
+      <a href="https://github.com/BE-Webdesign/wp-graphql/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/BE-Webdesign/wp-graphql/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h3>
+<a id="welcome-to-wp-graphql" class="anchor" href="#welcome-to-wp-graphql" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to WP GraphQL.</h3>
+
+<p>WP GraphQL is a plugin that enables a GraphQL API for your WordPress install. <strong>It is not currently ready for production. Please do not enable this plugin where security is critical.</strong> Once the plugin is brought into beta testing, it will most likely be secure.</p>
+
+<h3>
+<a id="what-is-graphql" class="anchor" href="#what-is-graphql" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is GraphQL</h3>
+
+<p>GraphQL is a technical specification, developed by Facebook, for an application level query language. What does that mean? Basically GraphQL provides a consistent way to make declarative queries, which will enable you to more easily retrieve the data you want and the shape that you want it in. GraphQL can be implemented in any language and can cover a vast amount of use cases. WP GraphQL exposes a WordPress installation's data through a GraphQL endpoint. You can send a GraphQL query over HTTP and as a response you will get the matching JSON representation of your data.</p>
+
+<h3>
+<a id="why-use-graphql" class="anchor" href="#why-use-graphql" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Why use GraphQL?</h3>
+
+<p>There are a number of reasons why you would want to use GraphQL, but one stands out among the rest; querying. GraphQL's queries are where it's power lies. A query string in GraphQL looks similar to JavaScript. Let's say we want to get all of the data for a single page view from WordPress. There is actually a lot of data that needs to be retrieved all of which interconnect with each other as well. Here is an example GraphQL query.</p>
+
+<pre><code>{
+  menu(name: "primary") {
+    items {
+      url,
+      title
+    }
+  },
+  post(id: 1) {
+    title,
+    content,
+    date,
+    featured_img(size: "thumbnail") {
+      src
+      alt
+    }
+    author {
+      name,
+      description,
+      gravatar(size: 96) {
+        src
+        alt
+      }
+    },
+    comments {
+      content,
+      date,
+      author {
+        name,
+        gravatar(size: 48) {
+          src
+        }
+      }
+    }
+  }
+}
+</code></pre>
+
+<p>Here you can see the power of GraphQL querying. We declare what we want in the query and the response from the API will return the matching data, all of this is handled in one HTTP request. The shape of our data is dictated by the request, not the response. Notice how we also specify each field we want in the query and how each field can also be another type of data. This allows us to only retrieve the data we need, whereas other types of APIs do not provide this flexibility. This makes GraphQL extremely powerful for any application that has a user interface (which is pretty much every app).</p>
+
+<h3>
+<a id="contributors-and-sources" class="anchor" href="#contributors-and-sources" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributors and Sources</h3>
+
+<p>WP GraphQL piggybacks ontop of WebOnyx's GraphQL PHP implementation which borrows from Facebook's reference implementation in JavaScript. Please head to the <a href="https://github.com/BE-Webdesign/wp-graphql">wp-graphql github repo</a> to help contribute.</p>
+
+<h3>
+<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support or Contact</h3>
+
+<p>Check out the <a href="https://github.com/BE-Webdesign/wp-graphql/issues">WP GraphQL</a>. <a href="https://github.com/BE-Webdesign/wp-graphql/issues/23">Issue 23</a> is open for you to introduce yourself.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/BE-Webdesign/wp-graphql">WP GraphQL</a> is maintained by <a href="https://github.com/BE-Webdesign">BE-Webdesign</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
