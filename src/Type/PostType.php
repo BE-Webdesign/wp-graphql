@@ -34,6 +34,7 @@ class PostType extends BaseType {
 					'type'           => $types->string(),
 					'mime_type'      => $types->string(),
 					'comment_count'  => $types->int(),
+					'comments'       => $types->listOf( $types->comment() ),
 				);
 			},
 			'interfaces' => [
@@ -103,5 +104,32 @@ class PostType extends BaseType {
 
 	public function type( \WP_Post $post, $args, AppContext $context ) {
 		return $post->post_type;
+	}
+
+	/**
+	 * Comments field resolver.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return array List of WP_Comment objects.
+	 */
+	public function comments( \WP_Post $post, $args, AppContext $context ) {
+		$query_args = array(
+			'post_id' => $post->ID,
+		);
+
+		if ( isset( $args['first'] ) ) {
+			$query_args['number'] = $args['first'];
+		}
+
+		if ( isset( $args['after'] ) ) {
+			$query_args['offset'] = $args['after'];
+		}
+
+		$comments_query = new \WP_Comment_Query( $query_args );
+		$comments = $comments_query->get_comments();
+
+		return ! empty( $comments ) ? $comments : null;
 	}
 }

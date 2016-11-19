@@ -80,6 +80,44 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for post comments.
+	 */
+	public function test_post_comments() {
+		$post_args = array(
+			'post_status'  => 'publish',
+			'post_content' => 'Hi!',
+			'post_title'   => 'Hello!',
+			'post_author'  => $this->admin,
+		);
+
+		$post_id = $this->factory->post->create( $post_args );
+
+		$comment_args = array(
+			'comment_post_ID' => $post_id,
+			'comment_content' => 'Hi Testing!',
+			'comment_approved' => '1',
+		);
+
+		$comment_id = $this->factory->comment->create( $comment_args );
+
+		$query = "{ post(id: {$post_id}) { title, comments { content } } }";
+		$expected = array(
+			'data' => array(
+				'post' => array(
+					'title' => 'Hello!',
+					'comments' => array(
+						array(
+							'content' => 'Hi Testing!',
+						),
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests the query for post fields.
 	 */
 	public function test_post_introspection_fields() {
@@ -109,6 +147,7 @@ class Query_Test extends WP_UnitTestCase {
 						array( 'name' => 'type' ),
 						array( 'name' => 'mime_type' ),
 						array( 'name' => 'comment_count' ),
+						array( 'name' => 'comments' ),
 					),
 				),
 			),
