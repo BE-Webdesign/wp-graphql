@@ -36,6 +36,7 @@ class PostType extends BaseType {
 					'comment_count'  => $types->int(),
 					'comments' => [
 						'type' => $types->listOf( $types->comment() ),
+						'description' => 'Returns comments for post based on collection args',
 						'args' => [
 							// Limit and after are equivalent to per_page and offset.
 							'first' => $types->int(),
