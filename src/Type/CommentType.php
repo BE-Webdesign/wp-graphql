@@ -24,7 +24,7 @@ class CommentType extends BaseType {
 					'approved'     => $types->string(),
 					'agent'        => $types->string(),
 					'type'         => $types->string(),
-					'parent'       => $types->string(),
+					'parent'       => $types->comment(),
 					'user_id'      => $types->id(),
 				);
 			},
@@ -82,7 +82,7 @@ class CommentType extends BaseType {
 	}
 
 	public function parent( \WP_Comment $comment, $args, AppContext $context) {
-		return $comment->comment_parent;
+		return get_comment( $comment->comment_parent );
 	}
 
 	/**

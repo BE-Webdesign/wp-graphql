@@ -181,6 +181,52 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for comment.
+	 */
+	public function test_comment_parent_query() {
+		$comment_args = array(
+			'comment_approved' => '1',
+			'comment_content' => 'Hi!',
+		);
+
+		$comment_parent = $this->factory->comment->create( $comment_args );
+
+		$comment_args = array(
+			'comment_parent' => $comment_parent,
+			'comment_content' => 'Hello!',
+		);
+
+		$comment_child = $this->factory->comment->create( $comment_args );
+
+		$query = "{ comment(id: {$comment_child}) { content, parent { content } } }";
+		$expected = array(
+			'data' => array(
+				'comment' => array(
+					'content' => 'Hello!',
+					'parent' => array(
+						'content' => 'Hi!',
+					),
+				),
+			),
+		);
+
+		// Test for no parent.
+		$this->check_graphql_response( $query, $expected );
+
+		$query = "{ comment(id: {$comment_parent}) { content, parent { content } } }";
+		$expected = array(
+			'data' => array(
+				'comment' => array(
+					'content' => 'Hi!',
+					'parent' => null,
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests the fields schema for comments.
 	 */
 	public function test_comment_introspection_fields() {
