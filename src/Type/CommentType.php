@@ -26,6 +26,15 @@ class CommentType extends BaseType {
 					'type'         => $types->string(),
 					'parent'       => $types->comment(),
 					'user_id'      => $types->id(),
+					'children' => [
+						'type' => $types->listOf( $types->comment() ),
+						'description' => 'Returns comments based on collection args',
+						'args' => [
+							// Limit and after are equivalent to per_page and offset.
+							'first' => $types->int(),
+							'after' => $types->int(),
+						],
+					],
 				);
 			},
 			'interfaces' => [
@@ -90,5 +99,32 @@ class CommentType extends BaseType {
 	 */
 	public function user_id( \WP_Comment $comment, $args, AppContext $context) {
 		return $comment->user_id;
+	}
+
+	/**
+	 * Comments field resolver.
+	 *
+	 * @param \WP_Comment $comment   Value for the resolver.
+	 * @param array       $args    List of arguments for this resolver.
+	 * @param AppContext  $context Context object for the Application.
+	 * @return array List of WP_Comment objects.
+	 */
+	public function children( \WP_Comment $comment, $args, AppContext $context ) {
+		$query_args = array(
+			'parent' => $comment->comment_ID,
+		);
+
+		if ( isset( $args['first'] ) ) {
+			$query_args['number'] = $args['first'];
+		}
+
+		if ( isset( $args['after'] ) ) {
+			$query_args['offset'] = $args['after'];
+		}
+
+		$comments_query = new \WP_Comment_Query( $query_args );
+		$comments = $comments_query->get_comments();
+
+		return ! empty( $comments ) ? $comments : null;
 	}
 }

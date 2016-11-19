@@ -227,6 +227,55 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for comment.
+	 */
+	public function test_comment_children_query() {
+		$comment_args = array(
+			'comment_approved' => '1',
+			'comment_content' => 'Hi!',
+		);
+
+		$comment_parent = $this->factory->comment->create( $comment_args );
+
+		$comment_args = array(
+			'comment_parent' => $comment_parent,
+			'comment_content' => 'Hello!',
+		);
+
+		$comment_child = $this->factory->comment->create( $comment_args );
+
+		// Test for empty children.
+		$query = "{ comment(id: {$comment_child}) { content, children { content } } }";
+		$expected = array(
+			'data' => array(
+				'comment' => array(
+					'content' => 'Hello!',
+					'children' => null,
+				),
+			),
+		);
+
+		// Test for one child comment.
+		$this->check_graphql_response( $query, $expected );
+
+		$query = "{ comment(id: {$comment_parent}) { content, children { content } } }";
+		$expected = array(
+			'data' => array(
+				'comment' => array(
+					'content' => 'Hi!',
+					'children' => array(
+						array(
+							'content' => 'Hello!',
+						),
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests the fields schema for comments.
 	 */
 	public function test_comment_introspection_fields() {
@@ -248,6 +297,7 @@ class Query_Test extends WP_UnitTestCase {
 						array( 'name' => 'type' ),
 						array( 'name' => 'parent' ),
 						array( 'name' => 'user_id' ),
+						array( 'name' => 'children' ),
 					),
 				),
 			),

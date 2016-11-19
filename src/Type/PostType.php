@@ -34,7 +34,14 @@ class PostType extends BaseType {
 					'type'           => $types->string(),
 					'mime_type'      => $types->string(),
 					'comment_count'  => $types->int(),
-					'comments'       => $types->listOf( $types->comment() ),
+					'comments' => [
+						'type' => $types->listOf( $types->comment() ),
+						'args' => [
+							// Limit and after are equivalent to per_page and offset.
+							'first' => $types->int(),
+							'after' => $types->int(),
+						],
+					],
 				);
 			},
 			'interfaces' => [
