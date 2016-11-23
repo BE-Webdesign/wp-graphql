@@ -500,6 +500,45 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for menu's items field.
+	 */
+	public function test_items_field_of_menu_query() {
+		$menu_args = array(
+			'taxonomy' => 'nav_menu',
+			'name' => 'Test Menu',
+			'slug' => 'test-menu',
+		);
+
+		// Nav menu items for whatever reason are posts.
+		$menu_id = $this->factory->term->create( $menu_args );
+
+		$menu_item_args = array(
+			'post_type' => 'nav_menu_item',
+			'post_title' => 'Let\'s hope this works!',
+		);
+
+		$menu_item = $this->factory->post->create( $menu_item_args );
+
+		wp_set_object_terms( $menu_item, $menu_id, 'nav_menu' );
+
+		$query = "{ menu(id: {$menu_id}) { items { id, title } } }";
+		$expected = array(
+			'data' => array(
+				'menu' => array(
+					'items' => array(
+						array(
+							'id'    => $menu_item,
+							'title' => 'Let\'s hope this works!',
+						),
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests the query for menu fields.
 	 */
 	public function test_menu_introspection_fields() {
@@ -512,6 +551,7 @@ class Query_Test extends WP_UnitTestCase {
 						array( 'name' => 'name' ),
 						array( 'name' => 'slug' ),
 						array( 'name' => 'group' ),
+						array( 'name' => 'items' ),
 					),
 				),
 			),
@@ -542,6 +582,30 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for menu location.
+	 */
+	public function test_menu_locations_query() {
+		$registered_menus = get_registered_nav_menus();
+		$menus = array();
+
+		foreach ( $registered_menus as $slug => $name ) {
+			$menus[] = array(
+				'slug' => $slug,
+				'name' => $name,
+			);
+		}
+
+		$query = '{ menu_locations{ name, slug } }';
+		$expected = array(
+			'data' => array(
+				'menu_locations' => $menus,
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests the query for menu location fields.
 	 */
 	public function test_menu_location_introspection_fields() {
@@ -552,6 +616,7 @@ class Query_Test extends WP_UnitTestCase {
 					'fields' => array(
 						array( 'name' => 'name' ),
 						array( 'name' => 'slug' ),
+						array( 'name' => 'active_menu' ),
 					),
 				),
 			),
@@ -620,7 +685,7 @@ class Query_Test extends WP_UnitTestCase {
 				'plugin' => array(
 					'name'   => $plugin['Name'],
 					'author' => $plugin['Author'],
-					'description'   => $plugin['Description'],
+					'description' => $plugin['Description'],
 				),
 			),
 		);

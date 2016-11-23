@@ -17,6 +17,7 @@ class MenuType extends BaseType {
 					'name'         => $types->string(),
 					'slug'         => $types->string(),
 					'group'        => $types->string(),
+					'items'        => $types->listOf( $types->menu_item() ),
 				);
 			},
 			'interfaces' => [
@@ -38,5 +39,9 @@ class MenuType extends BaseType {
 
 	public function group( \WP_Term $menu, $args, AppContext $context) {
 		return $menu->term_group;
+	}
+
+	public function items( \WP_Term $menu, $args, AppContext $context) {
+		return wp_get_nav_menu_items( $menu->name );
 	}
 }
