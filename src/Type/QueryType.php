@@ -109,7 +109,9 @@ class QueryType extends BaseType {
 					'type' => $types->menu(),
 					'description' => 'Returns menu by id',
 					'args' => [
-						'id' => $types->nonNull( $types->id() ),
+						'id' => $types->id(),
+						'name' => $types->string(),
+						'slug' => $types->string(),
 					],
 				),
 				'menu_location' => array(
@@ -118,6 +120,10 @@ class QueryType extends BaseType {
 					'args' => [
 						'slug' => $types->nonNull( $types->string() ),
 					],
+				),
+				'menu_locations' => array(
+					'type' => $types->listOf( $types->menu_location() ),
+					'description' => 'Returns menu locations registered in global',
 				),
 				'theme' => array(
 					'type' => $types->theme(),
@@ -373,10 +379,24 @@ class QueryType extends BaseType {
 	 * @return WP_Term Term object. Menus are terms.
 	 */
 	public function menu( $value, $args, AppContext $context ) {
-		$menu = get_term( $args['id'] );
+		$menu = null;
 
-		// If it is a nav menu item return it otherwise null.
-		return 'nav_menu' === $menu->taxonomy ? $menu : null;
+		// Check if the request ID arg is set.
+		if ( isset( $args['id'] ) ) {
+			$menu = get_term( $args['id'] );
+		} elseif ( isset( $args['name'] ) ) {
+			$menu = wp_get_nav_menu_object( $args['name'] );
+		} elseif ( isset( $args['slug'] ) ) {
+			$menu = wp_get_nav_menu_object( $args['slug'] );
+		}
+
+		if ( isset( $menu->taxonomy ) ) {
+			// If it is a nav menu item return it otherwise null.
+			return 'nav_menu' === $menu->taxonomy ? $menu : null;
+		}
+
+		// If there was some sort of error return null.
+		return null;
 	}
 
 	/**
@@ -392,7 +412,34 @@ class QueryType extends BaseType {
 		$name = $args['slug'];
 
 		// If it is a nav menu item return it otherwise null.
-		return isset( $menus[ $name ] ) ? array( $name => $menus[ $name ] ) : null;
+		if ( isset( $menus[ $name ] ) ) {
+			return array(
+				'slug' => $name,
+				'name' => $menus[ $name ],
+			);
+		}
+	}
+
+	/**
+	 * Menu locations field resolver.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return array Array of register nav menus data.
+	 */
+	public function menu_locations( $value, $args, AppContext $context ) {
+		$menus = array();
+		$registered_menus = get_registered_nav_menus();
+
+		foreach ( $registered_menus as $slug => $name ) {
+			$menus[] = array(
+				'slug' => $slug,
+				'name' => $name,
+			);
+		}
+
+		return ! empty( $menus ) ? $menus : null;
 	}
 
 	/**
