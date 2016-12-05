@@ -11,6 +11,7 @@ use BEForever\WPGraphQL\Type\MenuType;
 use BEForever\WPGraphQL\Type\MenuLocationType;
 use BEForever\WPGraphQL\Type\ThemeType;
 use BEForever\WPGraphQL\Type\PluginType;
+use BEForever\WPGraphQL\Type\PostTypeType;
 use BEForever\WPGraphQL\Type\NodeType;
 use BEForever\WPGraphQL\Type\QueryType;
 use GraphQL\Type\Definition\ListOfType;
@@ -77,6 +78,11 @@ class TypeSystem {
 	 * Plugin object type.
 	 */
 	private $plugin;
+
+	/**
+	 * Post type object type.
+	 */
+	private $post_type;
 
 	/**
 	 * Query object type.
@@ -151,6 +157,13 @@ class TypeSystem {
 	 */
 	public function plugin() {
 		return $this->plugin ?: ( $this->plugin = new PluginType( $this ) );
+	}
+
+	/**
+	 * @return PostTypeType
+	 */
+	public function post_type() {
+		return $this->post_type ?: ( $this->post_type = new PostTypeType( $this ) );
 	}
 
 	/**

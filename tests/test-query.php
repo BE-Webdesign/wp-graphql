@@ -737,7 +737,7 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the query for plugin fields.
+	 * Tests the query for taxonomy fields.
 	 */
 	public function test_taxonomy_introspection_fields() {
 		$query = '{__type(name: "Taxonomy") {fields {name}}}';
@@ -750,6 +750,76 @@ class Query_Test extends WP_UnitTestCase {
 						array( 'name' => 'description' ),
 						array( 'name' => 'show_cloud' ),
 						array( 'name' => 'hierarchical' ),
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for post types.
+	 */
+	public function test_post_types_query() {
+		$query = '{ post_types { name } }';
+		$response = $this->get_graphql_response( $query );
+
+		$expected = array(
+			'name' => 'post',
+		);
+		$actual = $response['data']['post_types'][0];
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Tests the query for post type.
+	 */
+	public function test_post_type_query() {
+		$name = 'post';
+
+		$query = "{ post_type(name: \"{$name}\") { name } }";
+		$expected = array(
+			'data' => array(
+				'post_type' => array(
+					'name' => 'post',
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for post type fields.
+	 */
+	public function test_post_type_introspection_fields() {
+		$query = '{__type(name: "PostType") {fields {name}}}';
+		$expected = array(
+			'data' => array(
+				'__type' => array(
+					'fields' => array(
+						array( 'name' => 'name' ),
+						array( 'name' => 'label' ),
+						array( 'name' => 'description' ),
+						array( 'name' => 'public' ),
+						array( 'name' => 'hierarchical' ),
+						array( 'name' => 'exclude_from_search' ),
+						array( 'name' => 'publicly_queryable' ),
+						array( 'name' => 'show_ui' ),
+						array( 'name' => 'show_in_menu' ),
+						array( 'name' => 'show_in_nav_menus' ),
+						array( 'name' => 'show_in_admin_bar' ),
+						array( 'name' => 'menu_position' ),
+						array( 'name' => 'menu_icon' ),
+						array( 'name' => 'taxonomies' ),
+						array( 'name' => 'has_archive' ),
+						array( 'name' => 'can_export' ),
+						array( 'name' => 'delete_with_user' ),
+						array( 'name' => 'show_in_rest' ),
+						array( 'name' => 'rest_base' ),
+						array( 'name' => 'rest_controller_class' ),
 					),
 				),
 			),
@@ -924,6 +994,41 @@ class Query_Test extends WP_UnitTestCase {
 		);
 
 		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Executes GraphQL query.
+	 *
+	 * @param string $query    GraphQL query string.
+	 * @return array Array of PHP data.
+	 */
+	private function get_graphql_response( $query ) {
+		// Build the complete type system.
+		$type_system = new TypeSystem();
+
+		// Build request context that will be available in all field resolvers (as 3rd argument).
+		$app_context = new AppContext();
+
+		// Build GraphQL schema out of the query object type.
+		$schema = new Schema([
+			'query' => $type_system->query(),
+		]);
+
+		$data = array();
+		$data['query'] = $query;
+		$data['variables'] = null;
+
+		// Execute the query.
+		$result = GraphQL::execute(
+			$schema,
+			$data['query'],
+			null,
+			$app_context,
+			(array) $data['variables'],
+			null
+		);
+
+		return $result;
 	}
 
 	/**
