@@ -157,6 +157,17 @@ class QueryType extends BaseType {
 						'after' => $types->int(),
 					],
 				],
+				'post_type' => [
+					'type' => $types->post_type(),
+					'description' => 'Returns registered post type',
+					'args' => [
+						'name' => $types->string(),
+					],
+				],
+				'post_types' => [
+					'type' => $types->listOf( $types->post_type() ),
+					'description' => 'Returns registered post types',
+				],
 				'hello' => Type::string(),
 			],
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
@@ -508,6 +519,39 @@ class QueryType extends BaseType {
 		}
 
 		return ! empty( $plugins ) ? $plugins : null;
+	}
+
+	/**
+	 * Post types field resolver.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return array Array of plugin data.
+	 */
+	public function post_type( $value, $args, AppContext $context ) {
+		$post_types = get_post_types( '', 'objects' );
+		$post_type = array();
+
+		foreach ( $post_types as $type ) {
+			if ( $args['name'] === $type->name ) {
+				$post_type = $type;
+			}
+		}
+
+		return ! empty( $post_type ) ? $post_type : null;
+	}
+
+	/**
+	 * Post types field resolver.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return array Array of plugin data.
+	 */
+	public function post_types( $value, $args, AppContext $context ) {
+		return get_post_types( array(), 'objects' );
 	}
 
 	/**
