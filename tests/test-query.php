@@ -987,21 +987,19 @@ class Query_Test extends WP_UnitTestCase {
 	 * Tests the query for themes.
 	 */
 	public function test_themes_query() {
+		// Testing themes by name is unreliable instead we need to test that the name field is not null.
 		$query = '{ themes(first: 2) { name } }';
-		$expected = array(
-			'data' => array(
-				'themes' => array(
-					array(
-						'name' => 'Twenty Fifteen',
-					),
-					array(
-						'name' => 'Twenty Fourteen',
-					),
-				),
-			),
-		);
+		$response = $this->get_graphql_response( $query );
 
-		$this->check_graphql_response( $query, $expected );
+		$expected = true;
+		$actual   = ! is_null( $response['data']['themes'][0]['name'] );
+
+		$this->assertEquals( $expected, $actual );
+
+		$expected = 2;
+		$actual   = count( $response['data']['themes'] );
+
+		$this->assertEquals( $expected, $actual );
 	}
 
 	/**
