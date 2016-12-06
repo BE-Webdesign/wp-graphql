@@ -67,7 +67,7 @@ class PostType extends BaseType {
 	}
 
 	public function author( \WP_Post $post, $args, AppContext $context ) {
-		return get_user_by( 'id', $post->post_author );
+		return new \WP_User( $post->post_author );
 	}
 
 	public function guid( \WP_Post $post, $args, AppContext $context ) {
