@@ -63,7 +63,7 @@ class CommentType extends BaseType {
 	 * This for whatever reason is the author name not id for the author.
 	 */
 	public function author( \WP_Comment $comment, $args, AppContext $context) {
-		return get_user_by( 'id', $comment->comment_author );
+		return new \WP_User( $comment->comment_author );
 	}
 
 	public function author_ip( \WP_Comment $comment, $args, AppContext $context) {

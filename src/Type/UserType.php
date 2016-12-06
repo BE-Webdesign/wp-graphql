@@ -37,6 +37,13 @@ class UserType extends BaseType {
 					'url'          => $types->string(),
 					'slug'         => $types->string(),
 					'locale'       => $types->string(),
+					'avatar'       => array(
+						'type' => $types->avatar(),
+						'description' => 'Avatar object',
+						'args' => array(
+							'size' => $types->int(),
+						),
+					),
 				];
 			},
 			'interfaces' => [
@@ -193,5 +200,19 @@ class UserType extends BaseType {
 	 */
 	public function registered_date( \WP_User $user, $args, AppContext $context ) {
 		return date( 'c', strtotime( $user->user_registered ) );
+	}
+
+	/**
+	 * User field resolver.
+	 *
+	 * Note that user is a field within the user type.
+	 *
+	 * @param \WP_User   $user    User for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return string
+	 */
+	public function avatar( \WP_User $user, $args, AppContext $context ) {
+		return get_avatar_data( $user->ID, array( 'size', $args['size'] ) );
 	}
 }

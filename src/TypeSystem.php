@@ -14,6 +14,7 @@ use BEForever\WPGraphQL\Type\PluginType;
 use BEForever\WPGraphQL\Type\PostTypeType;
 use BEForever\WPGraphQL\Type\NodeType;
 use BEForever\WPGraphQL\Type\QueryType;
+use BEForever\WPGraphQL\Type\AvatarType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
@@ -83,6 +84,11 @@ class TypeSystem {
 	 * Post type object type.
 	 */
 	private $post_type;
+
+	/**
+	 * Avatar type object type.
+	 */
+	private $avatar;
 
 	/**
 	 * Query object type.
@@ -164,6 +170,13 @@ class TypeSystem {
 	 */
 	public function post_type() {
 		return $this->post_type ?: ( $this->post_type = new PostTypeType( $this ) );
+	}
+
+	/**
+	 * @return AvatarType
+	 */
+	public function avatar() {
+		return $this->avatar ?: ( $this->avatar = new AvatarType( $this ) );
 	}
 
 	/**

@@ -330,6 +330,31 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for user.
+	 */
+	public function test_user_avatar_query() {
+		$user_args = array(
+			'role'       => 'editor',
+			'user_email' => 'graphqliscool@withwp.luv',
+		);
+
+		$user_id = $this->factory->user->create( $user_args );
+
+		$query = "{ user(id: {$user_id}) { avatar(size:96){ found_avatar } } }";
+		$expected = array(
+			'data' => array(
+				'user' => array(
+					'avatar' => array(
+						'found_avatar' => true,
+					),
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
 	 * Tests the query for user fields.
 	 */
 	public function test_user_introspection_fields() {
@@ -354,6 +379,7 @@ class Query_Test extends WP_UnitTestCase {
 						array( 'name' => 'url' ),
 						array( 'name' => 'slug' ),
 						array( 'name' => 'locale' ),
+						array( 'name' => 'avatar' ),
 					),
 				),
 			),
