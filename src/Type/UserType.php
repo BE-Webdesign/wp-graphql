@@ -21,27 +21,79 @@ class UserType extends BaseType {
 			'name' => 'User',
 			'fields' => function() use ( $types ) {
 				return [
-					'id'           => $types->id(),
-					'capabilities' => $types->listOf( $types->string() ),
-					'cap_key'      => $types->string(),
-					'roles'        => $types->listOf( $types->string() ),
-					'extra_capabilities' => $types->listOf( $types->string() ),
-					'email'        => $types->string(),
-					'first_name'   => $types->string(),
-					'last_name'    => $types->string(),
-					'description'  => $types->string(),
-					'username'     => $types->string(),
-					'name'         => $types->string(),
-					'registered_date' => $types->string(),
-					'nickname'     => $types->string(),
-					'url'          => $types->string(),
-					'slug'         => $types->string(),
-					'locale'       => $types->string(),
-					'avatar'       => array(
-						'type' => $types->avatar(),
-						'description' => 'Avatar object',
-						'args' => array(
-							'size' => $types->int(),
+					'id'              => array(
+						'type'        => $types->id(),
+						'description' => esc_html__( 'This field is the id of the user. The id of the user matches WP_User->ID field and the value in the ID column for the `wp_users` table in SQL.', 'wp-graphql' ),
+					),
+					'capabilities'    => array(
+						'type'        => $types->listOf( $types->string() ),
+						'description' => esc_html__( 'Returns the list of individually assigned capabilities a user has. This is equivalent to the array keys of WP_User->allcaps, where the capability is set to true.', 'wp-graphql' ),
+					),
+					'cap_key'         => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'User metadata option name. Usually it will be `wp_capabilities`.', 'wp-graphql' ),
+					),
+					'roles'           => array(
+						'type'        => $types->listOf( $types->string() ),
+						'description' => esc_html__( 'A list of roles that the user has. Roles can be used for querying for certain types of users, but should not be used in permissions checks.', 'wp-graphql' ),
+					),
+					'extra_capabilities' => array(
+						'type'        => $types->listOf( $types->string() ),
+						'description' => esc_html__( 'A complete list of capabilities including capabilities inherited from a role. This is equivalent to the array keys of WP_User->allcaps.', 'wp-graphql' ),
+					),
+					'email'           => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Email of the user. This is equivalent to the WP_User->user_email property.', 'wp-graphql' ),
+					),
+					'first_name'      => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'First name of the user. This is equivalent to the WP_User->user_first_name property.', 'wp-graphql' ),
+					),
+					'last_name'       => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Last name of the user. This is equivalent to the WP_User->user_last_name property.', 'wp-graphql' ),
+					),
+					'description'     => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Description of the user.', 'wp-graphql' ),
+					),
+					'username'        => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Username for the user. This field is equivalent to WP_User->user_login.', 'wp-graphql' ),
+					),
+					'name'            => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Display name of the user. This is equivalent to the WP_User->dispaly_name property.', 'wp-graphql' ),
+					),
+					'registered_date' => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'The date the user registered or was created. The field follows a full ISO8601 date string format.', 'wp-graphql' ),
+					),
+					'nickname'        => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Nickname of the user.', 'wp-graphql' ),
+					),
+					'url'             => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'A website url that is associated with the user.', 'wp-graphql' ),
+					),
+					'slug'            => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'The slug for the user. This field is equivalent to WP_User->user_nicename', 'wp-graphql' ),
+					),
+					'locale'          => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'The preferred language locale set for the user. Value derived from get_user_locale().', 'wp-graphql' ),
+					),
+					'avatar'          => array(
+						'type'        => $types->avatar(),
+						'description' => esc_html__( 'Avatar object for user. The avatar object can be retrieved in different sizes by specifying the size argument.', 'wp-graphql' ),
+						'args'        => array(
+							'size'    => array(
+								'type'         => $types->int(),
+								'description'  => esc_html__( 'The size attribute of the avatar field can be used to fetch avatars of different sizes. The value corresponds to the dimension in pixels to fetch. The default is 96 pixels.', 'wp-graphql' ),
+								'defaultValue' => 96,
+							),
 						),
 					),
 				];
@@ -49,6 +101,7 @@ class UserType extends BaseType {
 			'interfaces' => [
 				$types->node(),
 			],
+			'description' => esc_html__( 'The User type is internally represented by a WP_User object. Some of the fields are aliases for properties of the WP_User object.', 'wp-graphql' ),
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
 				if ( method_exists( $this, $info->fieldName ) ) {
 					return $this->{$info->fieldName}( $value, $args, $context, $info );
