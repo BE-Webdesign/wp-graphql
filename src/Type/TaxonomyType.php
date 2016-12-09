@@ -35,6 +35,7 @@ class TaxonomyType extends BaseType {
 					),
 				);
 			},
+			'description' => esc_html__( 'Taxonomies are groups for which content types can be grouped under. Taxonomies are comprised of terms. Content is assigned to terms which belong to a specific taxonomy. Internally this field maps to WP_Taxonomy.', 'wp-graphql' ),
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
 				if ( method_exists( $this, $info->fieldName ) ) {
 					return $this->{$info->fieldName}( $value, $args, $context, $info );
