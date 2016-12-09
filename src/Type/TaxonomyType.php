@@ -13,11 +13,26 @@ class TaxonomyType extends BaseType {
 			'name' => 'Taxonomy',
 			'fields' => function() use ( $types ) {
 				return array(
-					'name'         => $types->string(),
-					'slug'         => $types->string(),
-					'description'  => $types->string(),
-					'show_cloud'   => $types->boolean(),
-					'hierarchical' => $types->boolean(),
+					'name'            => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'The display name of the taxonomy. This field is equivalent to WP_Taxonomy->label', 'wp-graphql' ),
+					),
+					'slug'            => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'The url friendly name of the taxonomy. This field is equivalent to WP_Taxonomy->name', 'wp-graphql' ),
+					),
+					'description'     => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Description of the taxonomy. This field is equivalent to WP_Taxonomy->description', 'wp-graphql' ),
+					),
+					'show_cloud'      => array(
+						'type'        => $types->boolean(),
+						'description' => esc_html__( 'Whether to show the taxonomy as part of a tag cloud widget. This field is equivalent to WP_Taxonomy->show_tagcloud', 'wp-graphql' ),
+					),
+					'hierarchical'    => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Whether the taxonomy is hierarchical. This field is equivalent to WP_Taxonomy->hierarchical', 'wp-graphql' ),
+					),
 				);
 			},
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
