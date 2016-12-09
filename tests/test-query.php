@@ -296,7 +296,6 @@ class Query_Test extends WP_UnitTestCase {
 						array( 'name' => 'agent' ),
 						array( 'name' => 'type' ),
 						array( 'name' => 'parent' ),
-						array( 'name' => 'user_id' ),
 						array( 'name' => 'children' ),
 					),
 				),
@@ -907,7 +906,7 @@ class Query_Test extends WP_UnitTestCase {
 		$comment_args = array(
 			'comment_approved' => '1',
 			'comment_content' => 'Hi!',
-			'comment_author' => $this->admin,
+			'user_id' => $this->admin,
 		);
 
 		$comment_id = $this->factory->comment->create( $comment_args );
