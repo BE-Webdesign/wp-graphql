@@ -13,14 +13,33 @@ class PluginType extends BaseType {
 			'name' => 'Plugin',
 			'fields' => function() use ( $types ) {
 				return array(
-					'name'         => $types->string(),
-					'plugin_uri'   => $types->string(),
-					'description'  => $types->string(),
-					'author'       => $types->string(),
-					'author_uri'   => $types->string(),
-					'version'      => $types->string(),
+					'name'            => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Display name of the plugin.', 'wp-graphql' ),
+					),
+					'plugin_uri'      => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'URI for the plugin website. This is useful for directing users for support requests etc.', 'wp-graphql' ),
+					),
+					'description'     => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Description of the plugin.', 'wp-graphql' ),
+					),
+					'author'          => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Name of the plugin author(s), may also be a company name.', 'wp-graphql' ),
+					),
+					'author_uri'      => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'URI for the related author(s)/company website.', 'wp-graphql' ),
+					),
+					'version'         => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Current version of the plugin.', 'wp-graphql' ),
+					),
 				);
 			},
+			'description' => esc_html__( 'Plugins are pieces of software used to extend the functionlity of WordPress.', 'wp-graphql' ),
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
 				if ( method_exists( $this, $info->fieldName ) ) {
 					return $this->{$info->fieldName}( $value, $args, $context, $info );
