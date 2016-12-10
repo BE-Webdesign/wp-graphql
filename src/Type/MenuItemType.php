@@ -13,19 +13,44 @@ class MenuItemType extends BaseType {
 			'name' => 'MenuItem',
 			'fields' => function() use ( $types ) {
 				return array(
-					'id'           => $types->id(),
-					'title'        => $types->id(),
-					'type'         => $types->string(),
-					'object_id'    => $types->string(),
-					'object'       => $types->string(),
-					'target'       => $types->string(),
-					'xfn'          => $types->string(),
-					'url'          => $types->string(),
+					'id'              => array(
+						'type'        => $types->id(),
+						'description' => esc_html__( 'ID of the nav menu item.', 'wp-graphql' ),
+					),
+					'title'           => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Title of the nav menu item. This is what is displayed visually in a menu as text.', 'wp-graphql' ),
+					),
+					'type'            => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'The type relating the object being displayed in the type.', 'wp-graphql' ),
+					),
+					'object_id'       => array(
+						'type'        => $types->id(),
+						'description' => esc_html__( 'The ID of the object the menu item relates to.', 'wp-graphql' ),
+					),
+					'object'          => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'The serialized object that the menu item represents.', 'wp-graphql' ),
+					),
+					'target'          => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Target attribute for the link.', 'wp-graphql' ),
+					),
+					'xfn'             => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Link relationship.', 'wp-graphql' ),
+					),
+					'url'             => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'URL for the nav menu item.', 'wp-graphql' ),
+					),
 				);
 			},
 			'interfaces' => [
 				$types->node(),
 			],
+			'description' => esc_html__( 'Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu.', 'wp-graphql' ),
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
 				if ( method_exists( $this, $info->fieldName ) ) {
 					return $this->{$info->fieldName}( $value, $args, $context, $info );
