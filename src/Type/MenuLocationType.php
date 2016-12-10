@@ -13,11 +13,21 @@ class MenuLocationType extends BaseType {
 			'name' => 'MenuLocation',
 			'fields' => function() use ( $types ) {
 				return array(
-					'name' => $types->string(),
-					'slug' => $types->string(),
-					'active_menu' => $types->menu(),
+					'name'            => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'Display name of the registered menu location.', 'wp-graphql' ),
+					),
+					'slug'            => array(
+						'type'        => $types->string(),
+						'description' => esc_html__( 'The URL friendly identified for the registered menu location.', 'wp-graphql' ),
+					),
+					'active_menu'     => array(
+						'type'        => $types->menu(),
+						'description' => esc_html__( 'The active menu assigned to this registered menu locations.', 'wp-graphql' ),
+					),
 				);
 			},
+			'description' => esc_html__( 'Menu locations are typically registered by the active theme. They may include social menus, or the primary menu, or custom menu widgets.', 'wp-graphql' ),
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
 				if ( method_exists( $this, $info->fieldName ) ) {
 					return $this->{$info->fieldName}( $value, $args, $context, $info );
