@@ -55,6 +55,7 @@ class TermType extends BaseType {
 						'args'        => array(
 							'first'            => array(
 								'type'         => $types->int(),
+								'description'  => esc_html__( 'The first number of items to fetch for the collection.', 'wp-graphql' ),
 								// WordPress internally uses 0 to fetch all; this is a bad idea.
 								'defaultValue' => 0,
 							),
