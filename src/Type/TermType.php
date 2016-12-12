@@ -49,6 +49,23 @@ class TermType extends BaseType {
 						'type'        => $types->int(),
 						'description' => esc_html__( 'The count of items assigned to the term. This field is equivalent to WP_Term->count', 'wp-graphql' ),
 					),
+					'children'        => array(
+						'type'        => $types->listOf( $types->term() ),
+						'description' => esc_html__( 'The count of items assigned to the term. This field is equivalent to WP_Term->count', 'wp-graphql' ),
+						'args'        => array(
+							'first'            => array(
+								'type'         => $types->int(),
+								'description'  => esc_html__( 'The first number of items to fetch for the collection.', 'wp-graphql' ),
+								// WordPress internally uses 0 to fetch all; this is a bad idea.
+								'defaultValue' => 0,
+							),
+							'after'            => array(
+								'type'         => $types->int(),
+								'description'  => esc_html__( 'The offset for fetching the collection.', 'wp-graphql' ),
+								'defaultValue' => 0,
+							),
+						),
+					),
 				);
 			},
 			'interfaces' => [
@@ -65,11 +82,27 @@ class TermType extends BaseType {
 		]);
 	}
 
-	public function id( \WP_Term $term, $args, AppContext $context) {
+	public function id( \WP_Term $term, $args, AppContext $context ) {
 		return $term->term_id;
 	}
 
-	public function group( \WP_Term $term, $args, AppContext $context) {
+	public function group( \WP_Term $term, $args, AppContext $context ) {
 		return $term->term_group;
+	}
+
+	public function children( \WP_Term $term, $args, AppContext $context ) {
+		$terms = get_terms( array(
+			'taxonomy'   => $term->taxonomy,
+			'parent'     => $term->term_id,
+			'number'     => $args['first'],
+			'offset'     => $args['after'],
+			'hide_empty' => false,
+		) );
+
+		if ( is_wp_error( $terms ) ) {
+			return null;
+		}
+
+		return $terms;
 	}
 }
