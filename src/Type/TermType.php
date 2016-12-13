@@ -42,8 +42,8 @@ class TermType extends BaseType {
 						'description' => esc_html__( 'The description for the term. This field is equivalent to WP_Term->description', 'wp-graphql' ),
 					),
 					'parent'          => array(
-						'type'        => $types->id(),
-						'description' => esc_html__( 'The id for the parent term. Terms can be hierarchically organized in one to many relationships. This field is equivalent to WP_Term->parent', 'wp-graphql' ),
+						'type'        => $types->term(),
+						'description' => esc_html__( 'The parent term. Terms can be hierarchically organized in one to many relationships. This field is equivalent to new WP_Term( WP_Term->parent )', 'wp-graphql' ),
 					),
 					'count'           => array(
 						'type'        => $types->int(),
@@ -84,6 +84,10 @@ class TermType extends BaseType {
 
 	public function id( \WP_Term $term, $args, AppContext $context ) {
 		return $term->term_id;
+	}
+
+	public function parent( \WP_Term $term, $args, AppContext $context ) {
+		return new WP_Term( $term->parent );
 	}
 
 	public function group( \WP_Term $term, $args, AppContext $context ) {
