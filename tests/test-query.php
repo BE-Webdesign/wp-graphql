@@ -489,9 +489,7 @@ class Query_Test extends WP_UnitTestCase {
 				'term' => array(
 					'name' => 'Child',
 					'parent' => array(
-						array(
-							'name' => 'Test',
-						),
+						'name' => 'Test',
 					),
 				),
 			),

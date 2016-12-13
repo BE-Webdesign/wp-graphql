@@ -87,7 +87,7 @@ class TermType extends BaseType {
 	}
 
 	public function parent( \WP_Term $term, $args, AppContext $context ) {
-		return new \WP_Term( $term->parent );
+		return get_term( $term->parent );
 	}
 
 	public function group( \WP_Term $term, $args, AppContext $context ) {
