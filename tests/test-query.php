@@ -463,6 +463,42 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for term.
+	 */
+	public function test_term_parent_query() {
+		$term_args = array(
+			'taxonomy' => 'category',
+			'name'     => 'Test',
+		);
+
+		$term_id = $this->factory->term->create( $term_args );
+
+		$child_args = array(
+			'taxonomy' => 'category',
+			'name'     => 'Child',
+			'parent'   => $term_id,
+		);
+
+		$child_id = $this->factory->term->create( $child_args );
+
+		$query = "{ term(id: {$child_id}) { name, parent { name } } }";
+
+		$actual = $this->get_graphql_response( $query );
+		$expected = array(
+			'data' => array(
+				'term' => array(
+					'name' => 'Child',
+					'parent' => array(
+						'name' => 'Test',
+					),
+				),
+			),
+		);
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
 	 * Tests the query for term fields.
 	 */
 	public function test_term_introspection_fields() {
