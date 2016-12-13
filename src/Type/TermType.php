@@ -66,6 +66,22 @@ class TermType extends BaseType {
 							),
 						),
 					),
+					'objects'           => array(
+						'type'        => $types->listOf( $types->post() ),
+						'description' => esc_html__( 'The post objects associated with the selected term.', 'wp-graphql' ),
+						'args'        => array(
+							'first'            => array(
+								'type'         => $types->int(),
+								'description'  => esc_html__( 'The first number of items to fetch for the collection.', 'wp-graphql' ),
+								'defaultValue' => 10,
+							),
+							'after'            => array(
+								'type'         => $types->int(),
+								'description'  => esc_html__( 'The offset for fetching the collection.', 'wp-graphql' ),
+								'defaultValue' => 0,
+							),
+						),
+					),
 				);
 			},
 			'interfaces' => [
@@ -108,5 +124,28 @@ class TermType extends BaseType {
 		}
 
 		return $terms;
+	}
+
+	public function objects( \WP_Term $term, $args, AppContext $context ) {
+		$tax_query = array(
+			array(
+				'taxonomy' => $term->taxonomy,
+				'field'    => 'term_id',
+				'terms'    => $term->term_id,
+			),
+		);
+
+		$query_args = array(
+			'no_found_rows'  => true,
+			'tax_query'      => $tax_query,
+			'posts_per_page' => $args['first'],
+			'offest'         => $args['after'],
+		);
+
+		$query = new \WP_Query();
+
+		$objects = $query->query( $query_args );
+
+		return $objects;
 	}
 }
