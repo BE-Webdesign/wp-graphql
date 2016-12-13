@@ -499,6 +499,54 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for term.
+	 */
+	public function test_term_objects_query() {
+		$term_args = array(
+			'taxonomy' => 'category',
+			'name'     => 'Test',
+		);
+
+		$term_id = $this->factory->term->create( $term_args );
+
+		$object_1_args = array(
+			'post_title'     => 'Object 1',
+		);
+
+		$object_1 = $this->factory->post->create( $object_1_args );
+
+		$object_2_args = array(
+			'post_title'     => 'Object 2',
+		);
+
+		$object_2 = $this->factory->post->create( $object_2_args );
+
+		$query = "{ term(id: {$term_id}) { name, objects { title } } }";
+
+		wp_set_object_terms( $object_1, $term_id, 'category' );
+		wp_set_object_terms( $object_2, $term_id, 'category' );
+
+		$actual = $this->get_graphql_response( $query );
+		$expected = array(
+			'data' => array(
+				'term' => array(
+					'name' => 'Test',
+					'objects' => array(
+						array(
+							'title' => 'Object 1',
+						),
+						array(
+							'title' => 'Object 2',
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
 	 * Tests the query for term fields.
 	 */
 	public function test_term_introspection_fields() {
@@ -517,6 +565,7 @@ class Query_Test extends WP_UnitTestCase {
 						array( 'name' => 'parent' ),
 						array( 'name' => 'count' ),
 						array( 'name' => 'children' ),
+						array( 'name' => 'objects' ),
 					),
 				),
 			),
