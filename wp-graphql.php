@@ -236,6 +236,15 @@ function graphql_define( $constant_name, $value ) {
 	}
 }
 
+function graphql_get_post_types() {
+	global $wp_post_types;
+
+	return array(
+		$wp_post_types['post']->name,
+		$wp_post_types['page']->name,
+	);
+}
+
 /**
  * Does a GraphQL request.
  *
@@ -259,8 +268,12 @@ function serve_graphql_request() {
 	}
 
 	try {
+		$wp_config = array(
+			'post_types' => graphql_get_post_types(),
+		);
+
 		// Build the complete type system.
-		$type_system = new TypeSystem();
+		$type_system = new TypeSystem( $wp_config );
 
 		// Build request context that will be available in all field resolvers (as 3rd argument).
 		$app_context = new AppContext();

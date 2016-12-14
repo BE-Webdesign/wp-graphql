@@ -6,10 +6,14 @@ use BEForever\WPGraphQL\TypeSystem;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class PostType extends BaseType {
-	public function __construct( TypeSystem $types ) {
+class PostObjectType extends BaseType {
+	private $post_type;
+
+	public function __construct( TypeSystem $types, $post_type ) {
+		$this->post_type = $post_type;
+
 		$this->definition = new ObjectType([
-			'name' => 'Post',
+			'name' => ucfirst( $post_type ),
 			'fields' => function() use ( $types ) {
 				return array(
 					'id'              => array(

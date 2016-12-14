@@ -12,6 +12,8 @@ use BEForever\WPGraphQL\Type\MenuLocationType;
 use BEForever\WPGraphQL\Type\ThemeType;
 use BEForever\WPGraphQL\Type\PluginType;
 use BEForever\WPGraphQL\Type\PostTypeType;
+use BEForever\WPGraphQL\Type\PostInterfaceType;
+use BEForever\WPGraphQL\Type\PostObjectType;
 use BEForever\WPGraphQL\Type\NodeType;
 use BEForever\WPGraphQL\Type\QueryType;
 use BEForever\WPGraphQL\Type\AvatarType;
@@ -94,6 +96,26 @@ class TypeSystem {
 	 * Query object type.
 	 */
 	private $query;
+
+	/**
+	 * WordPress configuration.
+	 */
+	public $wp_config;
+
+	/**
+	 * Object constructor, used to load some inherit configuration of WP.
+	 *
+	 * @param array $wp_config Array of configuration data for WordPress.
+	 */
+	public function __construct( $wp_config = array() ) {
+		$this->wp_config = $wp_config;
+
+		if ( isset( $wp_config['post_types'] ) && is_array( $wp_config['post_types'] ) ) {
+			foreach ( $wp_config['post_types'] as $post_type ) {
+				$this->{$post_type} = new PostObjectType( $this, $post_type );
+			}
+		}
+	}
 
 	/**
 	 * @return PostType
@@ -186,14 +208,27 @@ class TypeSystem {
 		return $this->query ?: ( $this->query = new QueryType( $this ) );
 	}
 
+	/**
+	 * @return PostObjectType
+	 */
+	public function post_object( $post_type ) {
+		return $this->{$post_type} ?: ( $this->{$post_type} = new PostObjectType( $this, $post_type ) );
+	}
+
+
 	// Interface types
 	private $node;
+	private $post_interface;
 
 	/**
 	 * @return NodeType
 	 */
 	public function node() {
 		return $this->node ?: ( $this->node = new NodeType( $this ) );
+	}
+
+	public function post_interface() {
+		return $this->post_interface ?: ( $this->post_interface = new PostInterfaceType( $this ) );
 	}
 
 	// Add basic scalar types.
