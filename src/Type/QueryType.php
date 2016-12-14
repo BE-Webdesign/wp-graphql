@@ -15,161 +15,180 @@ class QueryType extends BaseType {
 	 * Object constructor.
 	 */
 	public function __construct( TypeSystem $types ) {
-		$this->definition = new ObjectType([
-			'name' => 'Query',
-			'fields' => [
-				'post' => [
-					'type' => $types->post(),
-					'description' => 'Returns post by id',
-					'args' => [
-						'id' => $types->nonNull( $types->id() ),
-					],
+		$fields = array(
+			'posts' => [
+				'type' => $types->listOf( $types->post() ),
+				'description' => 'Returns posts based on collection args',
+				'args' => [
+					// First and after are equivalent to per_page and offset.
+					'first' => $types->int(),
+					'after' => $types->int(),
 				],
-				'posts' => [
-					'type' => $types->listOf( $types->post() ),
-					'description' => 'Returns posts based on collection args',
-					'args' => [
-						// First and after are equivalent to per_page and offset.
-						'first' => $types->int(),
-						'after' => $types->int(),
-					],
-				],
-				'user' => [
-					'type' => $types->user(),
-					'description' => 'Returns user by id',
-					'args' => [
-						'id' => $types->nonNull( $types->id() ),
-					],
-				],
-				'users' => [
-					'type' => $types->listOf( $types->user() ),
-					'description' => 'Returns users based on collection args',
-					'args' => [
-						// Limit and after are equivalent to per_page and offset.
-						'first' => $types->int(),
-						'after' => $types->int(),
-					],
-				],
-				'comment' => [
-					'type' => $types->comment(),
-					'description' => 'Returns comment by id',
-					'args' => [
-						'id' => $types->nonNull( $types->id() ),
-					],
-				],
-				'comments' => [
-					'type' => $types->listOf( $types->comment() ),
-					'description' => 'Returns comments based on collection args',
-					'args' => [
-						// Limit and after are equivalent to per_page and offset.
-						'first' => $types->int(),
-						'after' => $types->int(),
-					],
-				],
-				'term' => array(
-					'type' => $types->term(),
-					'description' => 'Returns term by id',
-					'args' => [
-						'id' => $types->nonNull( $types->id() ),
-					],
-				),
-				'terms' => [
-					'type' => $types->listOf( $types->term() ),
-					'description' => 'Returns terms based on collection args',
-					'args' => [
-						// Limit and after are equivalent to per_page and offset.
-						'first' => $types->int(),
-						'after' => $types->int(),
-					],
-				],
-				'taxonomy' => array(
-					'type' => $types->taxonomy(),
-					'description' => 'Returns taxonomy by name',
-					'args' => [
-						'name' => $types->nonNull( $types->string() ),
-					],
-				),
-				'taxonomies' => [
-					'type' => $types->listOf( $types->taxonomy() ),
-					'description' => 'Returns taxonomies based on collection args',
-					'args' => [
-						// Limit and after are equivalent to per_page and offset.
-						'first' => $types->int(),
-						'after' => $types->int(),
-					],
-				],
-				'menu_item' => array(
-					'type' => $types->menu_item(),
-					'description' => 'Returns menu_item by id',
-					'args' => [
-						'id' => $types->nonNull( $types->id() ),
-					],
-				),
-				'menu' => array(
-					'type' => $types->menu(),
-					'description' => 'Returns menu by id',
-					'args' => [
-						'id' => $types->id(),
-						'name' => $types->string(),
-						'slug' => $types->string(),
-					],
-				),
-				'menu_location' => array(
-					'type' => $types->menu_location(),
-					'description' => 'Returns menu location by name',
-					'args' => [
-						'slug' => $types->nonNull( $types->string() ),
-					],
-				),
-				'menu_locations' => array(
-					'type' => $types->listOf( $types->menu_location() ),
-					'description' => 'Returns menu locations registered in global',
-				),
-				'theme' => array(
-					'type' => $types->theme(),
-					'description' => 'Returns theme by name',
-					'args' => [
-						'slug' => $types->nonNull( $types->string() ),
-					],
-				),
-				'themes' => [
-					'type' => $types->listOf( $types->theme() ),
-					'description' => 'Returns themes based on collection args',
-					'args' => [
-						// Limit and after are equivalent to per_page and offset.
-						'first' => $types->int(),
-						'after' => $types->int(),
-					],
-				],
-				'plugin' => array(
-					'type' => $types->plugin(),
-					'description' => 'Returns plugin by name',
-					'args' => [
-						'slug' => $types->nonNull( $types->string() ),
-					],
-				),
-				'plugins' => [
-					'type' => $types->listOf( $types->plugin() ),
-					'description' => 'Returns plugins based on collection args',
-					'args' => [
-						// Limit and after are equivalent to per_page and offset.
-						'first' => $types->int(),
-						'after' => $types->int(),
-					],
-				],
-				'post_type' => [
-					'type' => $types->post_type(),
-					'description' => 'Returns registered post type',
-					'args' => [
-						'name' => $types->string(),
-					],
-				],
-				'post_types' => [
-					'type' => $types->listOf( $types->post_type() ),
-					'description' => 'Returns registered post types',
-				],
-				'hello' => Type::string(),
 			],
+			'user' => [
+				'type' => $types->user(),
+				'description' => 'Returns user by id',
+				'args' => [
+					'id' => $types->nonNull( $types->id() ),
+				],
+			],
+			'users' => [
+				'type' => $types->listOf( $types->user() ),
+				'description' => 'Returns users based on collection args',
+				'args' => [
+					// Limit and after are equivalent to per_page and offset.
+					'first' => $types->int(),
+					'after' => $types->int(),
+				],
+			],
+			'comment' => [
+				'type' => $types->comment(),
+				'description' => 'Returns comment by id',
+				'args' => [
+					'id' => $types->nonNull( $types->id() ),
+				],
+			],
+			'comments' => [
+				'type' => $types->listOf( $types->comment() ),
+				'description' => 'Returns comments based on collection args',
+				'args' => [
+					// Limit and after are equivalent to per_page and offset.
+					'first' => $types->int(),
+					'after' => $types->int(),
+				],
+			],
+			'term' => array(
+				'type' => $types->term(),
+				'description' => 'Returns term by id',
+				'args' => [
+					'id' => $types->nonNull( $types->id() ),
+				],
+			),
+			'terms' => [
+				'type' => $types->listOf( $types->term() ),
+				'description' => 'Returns terms based on collection args',
+				'args' => [
+					// Limit and after are equivalent to per_page and offset.
+					'first' => $types->int(),
+					'after' => $types->int(),
+				],
+			],
+			'taxonomy' => array(
+				'type' => $types->taxonomy(),
+				'description' => 'Returns taxonomy by name',
+				'args' => [
+					'name' => $types->nonNull( $types->string() ),
+				],
+			),
+			'taxonomies' => [
+				'type' => $types->listOf( $types->taxonomy() ),
+				'description' => 'Returns taxonomies based on collection args',
+				'args' => [
+					// Limit and after are equivalent to per_page and offset.
+					'first' => $types->int(),
+					'after' => $types->int(),
+				],
+			],
+			'menu_item' => array(
+				'type' => $types->menu_item(),
+				'description' => 'Returns menu_item by id',
+				'args' => [
+					'id' => $types->nonNull( $types->id() ),
+				],
+			),
+			'menu' => array(
+				'type' => $types->menu(),
+				'description' => 'Returns menu by id',
+				'args' => [
+					'id' => $types->id(),
+					'name' => $types->string(),
+					'slug' => $types->string(),
+				],
+			),
+			'menu_location' => array(
+				'type' => $types->menu_location(),
+				'description' => 'Returns menu location by name',
+				'args' => [
+					'slug' => $types->nonNull( $types->string() ),
+				],
+			),
+			'menu_locations' => array(
+				'type' => $types->listOf( $types->menu_location() ),
+				'description' => 'Returns menu locations registered in global',
+			),
+			'theme' => array(
+				'type' => $types->theme(),
+				'description' => 'Returns theme by name',
+				'args' => [
+					'slug' => $types->nonNull( $types->string() ),
+				],
+			),
+			'themes' => [
+				'type' => $types->listOf( $types->theme() ),
+				'description' => 'Returns themes based on collection args',
+				'args' => [
+					// Limit and after are equivalent to per_page and offset.
+					'first' => $types->int(),
+					'after' => $types->int(),
+				],
+			],
+			'plugin' => array(
+				'type' => $types->plugin(),
+				'description' => 'Returns plugin by name',
+				'args' => [
+					'slug' => $types->nonNull( $types->string() ),
+				],
+			),
+			'plugins' => [
+				'type' => $types->listOf( $types->plugin() ),
+				'description' => 'Returns plugins based on collection args',
+				'args' => [
+					// Limit and after are equivalent to per_page and offset.
+					'first' => $types->int(),
+					'after' => $types->int(),
+				],
+			],
+			'post_type' => [
+				'type' => $types->post_type(),
+				'description' => 'Returns registered post type',
+				'args' => [
+					'name' => $types->string(),
+				],
+			],
+			'post_types' => [
+				'type' => $types->listOf( $types->post_type() ),
+				'description' => 'Returns registered post types',
+			],
+			'hello' => Type::string(),
+		);
+
+		/**
+		 * This is the dynamic creation of custom post types.
+		 */
+		if ( isset( $types->wp_config['post_types'] ) && is_array( $types->wp_config['post_types'] ) ) {
+			foreach ( $types->wp_config['post_types'] as $post_type ) {
+				$fields[ $post_type ] = array(
+					'type'        => $types->post_object( $post_type ),
+					'description' => $post_type,
+					'args'        => array(
+						'id' => $types->nonNull( $types->id() ),
+					),
+					'resolve' => function( $value, $args, $context ) use ( $post_type ) {
+						$post = get_post( $args['id'] );
+
+						if ( isset( $post->post_type ) && $post_type === $post->post_type ) {
+							return $post;
+						}
+
+						return null;
+					},
+				);
+			}
+		}
+
+		$this->definition = new ObjectType([
+			'name'         => 'Query',
+			'fields'       => $fields,
 			'resolveField' => function( $value, $args, $context, ResolveInfo $info ) {
 				return $this->{$info->fieldName}( $value, $args, $context, $info );
 			},

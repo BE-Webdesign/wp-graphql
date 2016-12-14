@@ -51,6 +51,61 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the dynamic generation of post types.
+	 *
+	 * This test type is dynamically generated.
+	 */
+	public function test_page_query() {
+		$page_args = array(
+			'post_status'  => 'publish',
+			'post_content' => 'Hi!',
+			'post_title'   => 'Hello!',
+			'post_type'    => 'page',
+			'post_author'  => $this->admin,
+		);
+
+		$page_id = $this->factory->post->create( $page_args );
+
+		$query = "{ page(id: {$page_id}) { content, title, author{ id } } }";
+		$actual = $this->get_graphql_response( $query );
+		$expected = array(
+			'data' => array(
+				'page' => array(
+					'content' => 'Hi!',
+					'title'   => 'Hello!',
+					'author'  => array(
+						'id'  => $this->admin,
+					),
+				),
+			),
+		);
+
+		$this->assertEquals( $expected, $actual );
+
+		// Test for null if the post types do not match.
+		$post_args = array(
+			'post_status'  => 'publish',
+			'post_content' => 'Hi!',
+			'post_title'   => 'Hello!',
+			'post_status'  => 'post',
+			'post_author'  => $this->admin,
+		);
+
+		$post_id = $this->factory->post->create( $post_args );
+
+		$query = "{ page(id: {$post_id}) { content, title, author{ id } } }";
+		$actual = $this->get_graphql_response( $query );
+
+		$expected = array(
+			'data' => array(
+				'page' => null,
+			),
+		);
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
 	 * Tests the query for post.
 	 */
 	public function test_post_query() {
@@ -1163,8 +1218,15 @@ class Query_Test extends WP_UnitTestCase {
 	 * @return array Array of PHP data.
 	 */
 	private function get_graphql_response( $query ) {
+		$wp_config = array(
+			'post_types' => array(
+				'post',
+				'page',
+			),
+		);
+
 		// Build the complete type system.
-		$type_system = new TypeSystem();
+		$type_system = new TypeSystem( $wp_config );
 
 		// Build request context that will be available in all field resolvers (as 3rd argument).
 		$app_context = new AppContext();
@@ -1198,8 +1260,15 @@ class Query_Test extends WP_UnitTestCase {
 	 * @param mixed  $expected Expected data to be returned in response.
 	 */
 	private function check_graphql_response( $query, $expected ) {
+		$wp_config = array(
+			'post_types' => array(
+				'post',
+				'page',
+			),
+		);
+
 		// Build the complete type system.
-		$type_system = new TypeSystem();
+		$type_system = new TypeSystem( $wp_config );
 
 		// Build request context that will be available in all field resolvers (as 3rd argument).
 		$app_context = new AppContext();
