@@ -5,7 +5,7 @@
  * @package Wp_Graphql
  */
 
-use \BEForever\WPGraphQL;
+use BEForever\WPGraphQL;
 use \BEForever\WPGraphQL\TypeSystem;
 use \BEForever\WPGraphQL\AppContext;
 use \BEForever\WPGraphQL\Data\DataSource;
@@ -781,6 +781,11 @@ class Query_Test extends WP_UnitTestCase {
 	 * Tests the query for menu location.
 	 */
 	public function test_menu_location_query() {
+		global $_wp_registered_nav_menus;
+		// @codingStandardsIgnoreStart
+		$_wp_registered_nav_menus = array( 'top', 'Top' );
+		// @codingStandardsIgnoreEnd
+
 		$registered_menus = get_registered_nav_menus();
 		$slug = key( $registered_menus );
 		$name = current( $registered_menus );
@@ -802,6 +807,11 @@ class Query_Test extends WP_UnitTestCase {
 	 * Tests the query for menu location.
 	 */
 	public function test_menu_locations_query() {
+		global $_wp_registered_nav_menus;
+		// @codingStandardsIgnoreStart
+		$_wp_registered_nav_menus = array( 'top', 'Top' );
+		// @codingStandardsIgnoreEnd
+
 		$registered_menus = get_registered_nav_menus();
 		$menus = array();
 
@@ -1066,6 +1076,116 @@ class Query_Test extends WP_UnitTestCase {
 	/**
 	 * Tests the query for posts.
 	 */
+	public function test_graphql_filter_post_types() {
+		$post_type = new stdClass();
+		$post_type->show_in_graphql = true;
+
+		$expected = true;
+		$actual = \BEForever\WPGraphQL\graphql_filter_post_types( $post_type );
+
+		$this->assertEquals( $expected, $actual );
+
+		// Test for failure.
+		$post_type->show_in_graphql = false;
+
+		$expected = false;
+		$actual = \BEForever\WPGraphQL\graphql_filter_post_types( $post_type );
+
+		$this->assertEquals( $expected, $actual );
+
+		// Test for bizarre failure.
+		$post_type->show_in_graphql = 'taco salad';
+
+		$expected = false;
+		$actual = \BEForever\WPGraphQL\graphql_filter_post_types( $post_type );
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Tests the fettching of filtered post types.
+	 */
+	public function test_graphql_get_post_types() {
+		$post_types = \BEForever\WPGraphQL\graphql_get_post_types();
+
+		global $wp_post_types;
+
+		$this->assertEquals( $post_types['post'], $wp_post_types['post'] );
+		$this->assertEquals( $post_types['page'], $wp_post_types['page'] );
+
+		$expected = array(
+			'post',
+			'page',
+		);
+		$actual = array_keys( $post_types );
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Tests the query for posts.
+	 */
+	public function test_graphql_build_post_type() {
+		$post_types = \BEForever\WPGraphQL\graphql_get_post_types();
+
+		$post = $post_types['post'];
+
+		$expected = array(
+			'name'            => 'post',
+			'singular_type'   => 'Post',
+			'plural_type'     => 'Posts',
+			'plural_name'     => 'posts',
+			'registered_name' => 'post',
+		);
+		$actual   = \BEForever\WPGraphQL\graphql_build_post_type( $post );
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Tests the query for posts.
+	 */
+	public function test_graphql_build_post_types() {
+		$post_types = \BEForever\WPGraphQL\graphql_get_post_types();
+
+		$expected = array(
+			'post' => array(
+				'name'            => 'post',
+				'singular_type'   => 'Post',
+				'plural_type'     => 'Posts',
+				'plural_name'     => 'posts',
+				'registered_name' => 'post',
+			),
+			'page' => array(
+				'name'            => 'page',
+				'singular_type'   => 'Page',
+				'plural_type'     => 'Pages',
+				'plural_name'     => 'pages',
+				'registered_name' => 'page',
+			),
+		);
+		$actual = \BEForever\WPGraphQL\graphql_build_post_types( $post_types );
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Tests the query for posts.
+	 */
+	public function test_graphql_build_wp_config() {
+		$post_types = \BEForever\WPGraphQL\graphql_build_post_types();
+
+		$expected = array(
+			'post_types' => $post_types,
+		);
+		$actual = \BEForever\WPGraphQL\graphql_build_wp_config();
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Tests the query for posts.
+	 */
 	public function test_posts_query() {
 		$post_args = array(
 			'post_status' => 'publish',
@@ -1218,12 +1338,7 @@ class Query_Test extends WP_UnitTestCase {
 	 * @return array Array of PHP data.
 	 */
 	private function get_graphql_response( $query ) {
-		$wp_config = array(
-			'post_types' => array(
-				'post',
-				'page',
-			),
-		);
+		$wp_config = \BEForever\WPGraphQL\graphql_build_wp_config();
 
 		// Build the complete type system.
 		$type_system = new TypeSystem( $wp_config );
@@ -1260,12 +1375,7 @@ class Query_Test extends WP_UnitTestCase {
 	 * @param mixed  $expected Expected data to be returned in response.
 	 */
 	private function check_graphql_response( $query, $expected ) {
-		$wp_config = array(
-			'post_types' => array(
-				'post',
-				'page',
-			),
-		);
+		$wp_config = \BEForever\WPGraphQL\graphql_build_wp_config();
 
 		// Build the complete type system.
 		$type_system = new TypeSystem( $wp_config );

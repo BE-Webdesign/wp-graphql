@@ -6,6 +6,13 @@ use BEForever\WPGraphQL\TypeSystem;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
+/**
+ * The post type must remain for now to match up as a general type for edges of
+ * other types. For example terms can return a collection of posts, assigned to
+ * them. This type will be useful for these scenarios where a collection of
+ * different post types could be used. Or the posts of an author, that could be
+ * pages, posts, or custom post types all mixed together.
+ */
 class PostType extends BaseType {
 	public function __construct( TypeSystem $types ) {
 		$this->definition = new ObjectType([

@@ -135,18 +135,6 @@ class PostInterfaceType extends BaseType {
 	 * @param TypeSystem $types  Current TypeSystem.
 	 */
 	public function resolveType( $object, TypeSystem $types ) {
-		if ( $object instanceof User ) {
-			return $types->user();
-		} elseif ( $object instanceof Post ) {
-			return $types->post();
-		} elseif ( $object instanceof Comment ) {
-			return $types->comment();
-		} elseif ( $object instanceof Term ) {
-			return $types->term();
-		} elseif ( $object instanceof MenuItem ) {
-			return $types->menu_item();
-		} elseif ( $object instanceof Menu ) {
-			return $types->menu();
-		}
+		return $types->post_object( $object->post_type );
 	}
 }
