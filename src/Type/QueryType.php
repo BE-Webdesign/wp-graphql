@@ -16,15 +16,6 @@ class QueryType extends BaseType {
 	 */
 	public function __construct( TypeSystem $types ) {
 		$fields = array(
-			'posts' => [
-				'type' => $types->listOf( $types->post() ),
-				'description' => 'Returns posts based on collection args',
-				'args' => [
-					// First and after are equivalent to per_page and offset.
-					'first' => $types->int(),
-					'after' => $types->int(),
-				],
-			],
 			'user' => [
 				'type' => $types->user(),
 				'description' => 'Returns user by id',
@@ -166,23 +157,10 @@ class QueryType extends BaseType {
 		 * This is the dynamic creation of custom post types.
 		 */
 		if ( isset( $types->wp_config['post_types'] ) && is_array( $types->wp_config['post_types'] ) ) {
-			foreach ( $types->wp_config['post_types'] as $post_type ) {
-				$fields[ $post_type ] = array(
-					'type'        => $types->post_object( $post_type ),
-					'description' => $post_type,
-					'args'        => array(
-						'id' => $types->nonNull( $types->id() ),
-					),
-					'resolve' => function( $value, $args, $context ) use ( $post_type ) {
-						$post = get_post( $args['id'] );
-
-						if ( isset( $post->post_type ) && $post_type === $post->post_type ) {
-							return $post;
-						}
-
-						return null;
-					},
-				);
+			foreach ( $types->wp_config['post_types'] as $name => $post_type ) {
+				// Add singular post types.
+				$fields[ $post_type['name'] ] = $this->add_singular_object_type( $post_type['name'], $post_type, $types );
+				$fields[ $post_type['plural_name'] ] = $this->add_plural_object_type( $post_type['name'], $post_type, $types );
 			}
 		}
 
@@ -193,6 +171,82 @@ class QueryType extends BaseType {
 				return $this->{$info->fieldName}( $value, $args, $context, $info );
 			},
 		]);
+	}
+
+	/**
+	 * Generate individual object type field for main Query Type.
+	 *
+	 * This is used in dynamically rendering single posts, pages etc. as fields
+	 * for the main query.
+	 * See graphql_build_wp_config() for the style of the configuration data.
+	 *
+	 * @param string     $name      The registered name of the post type.
+	 * @param array      $post_type Array of formatted post_type data.
+	 * @param TypeSystem $types     The generated type system.
+	 * @return array Array of field data dynamically generated for the post type.
+	 */
+	private function add_singular_object_type( $name, $post_type, $types ) {
+		return array(
+			'type'        => $types->post_object( $name ),
+			/* translators: %s Is the registered name of the post type. */
+			'description' => sprintf( esc_html__( 'WordPress features many different object types known as post types. This field resolves to the %s type.', 'wp-graphql' ), $post_type['name'] ),
+			'args'        => array(
+				'id' => $types->nonNull( $types->id() ),
+			),
+			'resolve' => function( $value, $args, $context ) use ( $post_type ) {
+				$post = get_post( $args['id'] );
+
+				if ( isset( $post->post_type ) && $post_type['name'] === $post->post_type ) {
+					return $post;
+				}
+
+				return null;
+			},
+		);
+	}
+
+	/**
+	 * Generate collection object type field for main Query Type.
+	 *
+	 * This is used in dynamically rendering single posts, pages etc. as fields
+	 * for the main query.
+	 * See graphql_build_wp_config() for the style of the configuration data.
+	 *
+	 * These fields will make use of WP_Query!
+	 *
+	 * @param string     $name      The registered name of the post type.
+	 * @param array      $post_type Array of formatted post_type data.
+	 * @param TypeSystem $types     The generated type system.
+	 * @return array Array of field data dynamically generated for the post type.
+	 */
+	private function add_plural_object_type( $name, $post_type, $types ) {
+		return array(
+			'type'        => $types->listOf( $types->post_object( $name ) ),
+			/* translators: %s Is the registered name of the post type. */
+			'description' => sprintf( esc_html__( 'WordPress features many different object types known as post types. This field resolves to a collection of the %s type.', 'wp-graphql' ), $post_type['name'] ),
+			'args' => [
+				// First and after are equivalent to per_page and offset.
+				'first' => $types->int(),
+				'after' => $types->int(),
+			],
+			'resolve' => function( $value, $args, $context ) use ( $post_type ) {
+				$query_args = array(
+					'post_type' => $post_type['registered_name'],
+				);
+
+				if ( isset( $args['first'] ) ) {
+					$query_args['posts_per_page'] = $args['first'];
+				}
+
+				if ( isset( $args['after'] ) ) {
+					$query_args['offset'] = $args['after'];
+				}
+
+				$posts_query = new \WP_Query( $query_args );
+				$posts = $posts_query->get_posts();
+				return ! empty( $posts ) ? $posts : null;
+			},
+		);
 	}
 
 	/**

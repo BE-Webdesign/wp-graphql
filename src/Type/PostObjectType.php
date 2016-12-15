@@ -7,13 +7,13 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
 class PostObjectType extends BaseType {
-	private $post_type;
+	public $post_type;
 
 	public function __construct( TypeSystem $types, $post_type ) {
 		$this->post_type = $post_type;
 
 		$this->definition = new ObjectType([
-			'name' => ucfirst( $post_type ),
+			'name' => $post_type,
 			'fields' => function() use ( $types ) {
 				return array(
 					'id'              => array(

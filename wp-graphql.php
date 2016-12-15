@@ -236,13 +236,143 @@ function graphql_define( $constant_name, $value ) {
 	}
 }
 
+add_filter( 'init', '\BEForever\WPGraphQL\graphql_add_extra_api_post_type_arguments', 11 );
+
+/**
+ * Adds extra post type registration arguments.
+ *
+ * These attributes will eventually be committed to core.
+ *
+ * @global array $wp_post_types Registered post types.
+ */
+function graphql_add_extra_api_post_type_arguments() {
+	global $wp_post_types;
+
+	if ( isset( $wp_post_types['post'] ) ) {
+		$wp_post_types['post']->show_in_graphql = true;
+		$wp_post_types['post']->graphql_name = 'post';
+		$wp_post_types['post']->graphql_plural_name = 'posts';
+		$wp_post_types['post']->graphql_singular_type = 'Post';
+		$wp_post_types['post']->graphql_plural_type = 'Posts';
+	}
+
+	if ( isset( $wp_post_types['page'] ) ) {
+		$wp_post_types['page']->show_in_graphql = true;
+		$wp_post_types['page']->graphql_name = 'page';
+		$wp_post_types['page']->graphql_plural_name = 'pages';
+		$wp_post_types['page']->graphql_singular_type = 'Page';
+		$wp_post_types['page']->graphql_plural_type = 'Pages';
+	}
+}
+
+/**
+ * Get the post types nameing data.
+ *
+ * This is set in $wp_config for the TypeSystem.
+ *
+ * @global array $wp_post_types Registered post types.
+ *
+ * @return array Array of post type data.
+ */
 function graphql_get_post_types() {
 	global $wp_post_types;
 
-	return array(
-		$wp_post_types['post']->name,
-		$wp_post_types['page']->name,
-	);
+	if ( is_callable( 'graphql_filter_post_types' ) ) {
+		return array_filter( $wp_post_types, 'graphql_filter_post_types' );
+	}
+
+	// Testing will call this out of namespace.
+	if ( is_callable( '\BEForever\WPGraphQL\graphql_filter_post_types' ) ) {
+		return array_filter( $wp_post_types, '\BEForever\WPGraphQL\graphql_filter_post_types' );
+	}
+}
+
+/**
+ * Filter post types that are only set to show_in_graphql.
+ *
+ * @param WP_Post_Type $post_type Post type object to check against.
+ *
+ * @return array Array of post type data.
+ */
+function graphql_filter_post_types( $post_type ) {
+	if ( isset( $post_type->show_in_graphql ) ) {
+		return true === $post_type->show_in_graphql;
+	}
+
+	return false;
+}
+
+/**
+ * Builds the necessary structure for the post types.
+ *
+ * @param WP_Post_Type $post_type The post_type object.
+ */
+function graphql_build_post_type( $post_type ) {
+	$names = array();
+
+	if ( isset( $post_type->name ) ) {
+		$names['registered_name'] = $post_type->name;
+	}
+
+	if ( isset( $post_type->graphql_name ) ) {
+		$names['name'] = $post_type->graphql_name;
+	}
+
+	if ( isset( $post_type->graphql_plural_name ) ) {
+		$names['plural_name'] = $post_type->graphql_plural_name;
+	}
+
+	if ( isset( $post_type->graphql_singular_type ) ) {
+		$names['singular_type'] = $post_type->graphql_singular_type;
+	}
+
+	if ( isset( $post_type->graphql_plural_type ) ) {
+		$names['plural_type'] = $post_type->graphql_plural_type;
+	}
+
+	return $names;
+}
+
+/**
+ * Returns a formatted set of names for the post types.
+ *
+ * This data is passed into the $wp_config.
+ *
+ * @param array $post_types List of post type objects.
+ */
+function graphql_build_post_types( $post_types = array() ) {
+	if ( empty( $post_types ) ) {
+		$post_types = graphql_get_post_types();
+	}
+
+	if ( ! empty( $post_types ) ) {
+		if ( is_callable( 'graphql_build_post_type' ) ) {
+			return array_map( 'graphql_build_post_type', $post_types );
+		}
+
+		if ( is_callable( '\BEForever\WPGraphQL\graphql_build_post_type' ) ) {
+			return array_map( '\BEForever\WPGraphQL\graphql_build_post_type', $post_types );
+		}
+	}
+
+	return array();
+}
+
+/**
+ * Returns configuration data for the type system.
+ *
+ * This should be used as a way to pass state based information about WordPress
+ * into WP GraphQL. This is useful for programmatically generating types.
+ *
+ * @param array $wp_config Configuration data for the WordPress type system.
+ */
+function graphql_build_wp_config() {
+	$wp_config = array();
+	$post_types = graphql_get_post_types();
+
+	$wp_config['post_types'] = graphql_build_post_types( $post_types );
+
+	return $wp_config;
 }
 
 /**
@@ -268,9 +398,7 @@ function serve_graphql_request() {
 	}
 
 	try {
-		$wp_config = array(
-			'post_types' => graphql_get_post_types(),
-		);
+		$wp_config = graphql_build_wp_config();
 
 		// Build the complete type system.
 		$type_system = new TypeSystem( $wp_config );

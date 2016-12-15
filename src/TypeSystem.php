@@ -111,8 +111,11 @@ class TypeSystem {
 		$this->wp_config = $wp_config;
 
 		if ( isset( $wp_config['post_types'] ) && is_array( $wp_config['post_types'] ) ) {
-			foreach ( $wp_config['post_types'] as $post_type ) {
-				$this->{$post_type} = new PostObjectType( $this, $post_type );
+			foreach ( $wp_config['post_types'] as $type => $post_type ) {
+				$single      = $post_type['name'];
+				$single_type = $post_type['singular_type'];
+
+				$this->{$single} = new PostObjectType( $this, $single_type );
 			}
 		}
 	}
