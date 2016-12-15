@@ -95,6 +95,7 @@ function graphql_api_loaded() {
 	 * Serve request and echo response.
 	 */
 	$response = serve_graphql_request();
+	header( sprintf( 'Content-Type: application/json; charset=%s', get_option( 'blog_charset' ) ) );
 	echo wp_json_encode( $response );
 
 	// We're done.
