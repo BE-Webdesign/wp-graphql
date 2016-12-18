@@ -98,12 +98,29 @@ class UserType extends BaseType {
 					),
 					'posts'           => array(
 						'type'        => $types->listOf( $types->post() ),
-						'description' => esc_html__( 'Avatar object for user. The avatar object can be retrieved in different sizes by specifying the size argument.', 'wp-graphql' ),
+						'description' => esc_html__( 'A collection of posts assigned to the user.', 'wp-graphql' ),
 						'args' => [
 							// Limit and after are equivalent to per_page and offset.
 							'first' => array(
 								'type'         => $types->int(),
 								'description'  => esc_html__( 'The number of posts by this user to query for. First is pretty much the same as LIMIT in SQL, or a `per_page` parameter in pagination.', 'wp-graphql' ),
+								'defaultValue' => 10,
+							),
+							'after' => array(
+								'type'         => $types->int(),
+								'description'  => esc_html__( 'The offset for the query.', 'wp-graphql' ),
+								'defaultValue' => 0,
+							),
+						],
+					),
+					'comments'        => array(
+						'type'        => $types->listOf( $types->comment() ),
+						'description' => esc_html__( 'A collection of comments assigned to the user.', 'wp-graphql' ),
+						'args' => [
+							// Limit and after are equivalent to per_page and offset.
+							'first' => array(
+								'type'         => $types->int(),
+								'description'  => esc_html__( 'The number of comments by this user to query for. First is pretty much the same as LIMIT in SQL, or a `per_page` parameter in pagination.', 'wp-graphql' ),
 								'defaultValue' => 10,
 							),
 							'after' => array(
@@ -310,8 +327,34 @@ class UserType extends BaseType {
 			$query_args['offset'] = $args['after'];
 		}
 
-		$posts_query = new \WP_Query( $query_args );
-		$posts = $posts_query->get_posts();
+		$posts_query = new \WP_Query();
+		$posts = $posts_query->query( $query_args );
 		return ! empty( $posts ) ? $posts : null;
+	}
+
+	/**
+	 * Comments field resolver.
+	 *
+	 * @param mixed      $value   Value for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return array List of WP_Comment objects.
+	 */
+	public function comments( \WP_User $user, $args, AppContext $context ) {
+		$query_args = array(
+			'user_id' => $user->ID,
+		);
+
+		if ( isset( $args['first'] ) ) {
+			$query_args['number'] = $args['first'];
+		}
+
+		if ( isset( $args['after'] ) ) {
+			$query_args['offset'] = $args['after'];
+		}
+
+		$comments_query = new \WP_Comment_Query();
+		$comments = $comments_query->query( $query_args );
+		return ! empty( $comments ) ? $comments : null;
 	}
 }

@@ -479,6 +479,42 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the comments query for user.
+	 */
+	public function test_user_comments_query() {
+		$user_args = array(
+			'role'       => 'editor',
+			'user_email' => 'graphqliscool@withwp.luv',
+		);
+
+		$user_id = $this->factory->user->create( $user_args );
+
+		$comment_args = array(
+			'user_id'         => $user_id,
+			'comment_content' => 'Wow BBQ is SOOOO GOOD.'
+		);
+
+		$comment_id = $this->factory->comment->create( $comment_args );
+
+		$query = "{ user(id: {$user_id}) { email, comments(first: 10) { content } } }";
+		$actual = $this->get_graphql_response( $query );
+		$expected = array(
+			'data' => array(
+				'user' => array(
+					'email' => 'graphqliscool@withwp.luv',
+					'comments' => array(
+						array(
+							'content' => 'Wow BBQ is SOOOO GOOD.',
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
 	 * Tests the query for user fields.
 	 */
 	public function test_user_introspection_fields() {
@@ -505,6 +541,7 @@ class Query_Test extends WP_UnitTestCase {
 						array( 'name' => 'locale' ),
 						array( 'name' => 'avatar' ),
 						array( 'name' => 'posts' ),
+						array( 'name' => 'comments' ),
 					),
 				),
 			),
