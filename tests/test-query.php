@@ -504,6 +504,7 @@ class Query_Test extends WP_UnitTestCase {
 						array( 'name' => 'slug' ),
 						array( 'name' => 'locale' ),
 						array( 'name' => 'avatar' ),
+						array( 'name' => 'posts' ),
 					),
 				),
 			),
