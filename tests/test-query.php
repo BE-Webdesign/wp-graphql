@@ -443,6 +443,42 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the posts query for user.
+	 */
+	public function test_user_posts_query() {
+		$user_args = array(
+			'role'       => 'editor',
+			'user_email' => 'graphqliscool@withwp.luv',
+		);
+
+		$user_id = $this->factory->user->create( $user_args );
+
+		$post_args = array(
+			'post_author' => $user_id,
+			'post_title'  => 'I love tacos.'
+		);
+
+		$post_id = $this->factory->post->create( $post_args );
+
+		$query = "{ user(id: {$user_id}) { email, posts(first: 10) { title } } }";
+		$actual = $this->get_graphql_response( $query );
+		$expected = array(
+			'data' => array(
+				'user' => array(
+					'email' => 'graphqliscool@withwp.luv',
+					'posts' => array(
+						array(
+							'title' => 'I love tacos.',
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
 	 * Tests the query for user fields.
 	 */
 	public function test_user_introspection_fields() {
@@ -468,6 +504,7 @@ class Query_Test extends WP_UnitTestCase {
 						array( 'name' => 'slug' ),
 						array( 'name' => 'locale' ),
 						array( 'name' => 'avatar' ),
+						array( 'name' => 'posts' ),
 					),
 				),
 			),
