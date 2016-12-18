@@ -18,8 +18,8 @@ class CommentType extends BaseType {
 						'description' => esc_html__( 'The id field for comments matches the comment id. This field is equivalent to WP_Comment->comment_ID and the value matching the `comment_ID` column in SQL.', 'wp-graphql' ),
 					),
 					'post'            => array(
-						'type'        => $types->id(),
-						'description' => esc_html__( 'The post field for comments matches the post id the comment is assigned to. This field is equivalent to WP_Comment->comment_post_ID and the value matching the `comment_post_ID` column in SQL.', 'wp-graphql' ),
+						'type'        => $types->post(),
+						'description' => esc_html__( 'The post field for comments matches the post comment is assigned to. This field is equivalent to \WP_Post::get_instance( WP_Comment->comment_post_ID ) and the post matching the `comment_post_ID` column in SQL.', 'wp-graphql' ),
 					),
 					'author'          => array(
 						'type'        => $types->user(),
@@ -93,53 +93,54 @@ class CommentType extends BaseType {
 	}
 
 	// Testing to see if it will resolve based on interface.
-	public function id( \WP_Comment $comment, $args, AppContext $context) {
+	public function id( \WP_Comment $comment, $args, AppContext $context ) {
 		return $comment->comment_ID;
 	}
 
-	public function post( \WP_Comment $comment, $args, AppContext $context) {
-		return $comment->comment_post_ID;
+	public function post( \WP_Comment $comment, $args, AppContext $context ) {
+		return \WP_Post::get_instance( $comment->comment_post_ID );
 	}
 
 	/**
-	 * This for whatever reason is the author name not id for the author.
+	 * $comment->user_id for whatever reason is the author id for the author.
+	 * Do not confuse this with $comment->author
 	 */
-	public function author( \WP_Comment $comment, $args, AppContext $context) {
+	public function author( \WP_Comment $comment, $args, AppContext $context ) {
 		return new \WP_User( $comment->user_id );
 	}
 
-	public function author_ip( \WP_Comment $comment, $args, AppContext $context) {
+	public function author_ip( \WP_Comment $comment, $args, AppContext $context ) {
 		return $comment->comment_author_IP;
 	}
 
-	public function content( \WP_Comment $comment, $args, AppContext $context) {
+	public function content( \WP_Comment $comment, $args, AppContext $context ) {
 		return $comment->comment_content;
 	}
 
-	public function karma( \WP_Comment $comment, $args, AppContext $context) {
+	public function karma( \WP_Comment $comment, $args, AppContext $context ) {
 		return $comment->comment_karma;
 	}
 
-	public function approved( \WP_Comment $comment, $args, AppContext $context) {
+	public function approved( \WP_Comment $comment, $args, AppContext $context ) {
 		return $comment->comment_approved;
 	}
 
-	public function agent( \WP_Comment $comment, $args, AppContext $context) {
+	public function agent( \WP_Comment $comment, $args, AppContext $context ) {
 		return $comment->comment_agent;
 	}
 
-	public function type( \WP_Comment $comment, $args, AppContext $context) {
+	public function type( \WP_Comment $comment, $args, AppContext $context ) {
 		return $comment->comment_type;
 	}
 
-	public function parent( \WP_Comment $comment, $args, AppContext $context) {
+	public function parent( \WP_Comment $comment, $args, AppContext $context ) {
 		return get_comment( $comment->comment_parent );
 	}
 
 	/**
 	 * ID of comment author.
 	 */
-	public function user_id( \WP_Comment $comment, $args, AppContext $context) {
+	public function user_id( \WP_Comment $comment, $args, AppContext $context ) {
 		return $comment->user_id;
 	}
 

@@ -236,6 +236,40 @@ class Query_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the query for comment's post.
+	 */
+	public function test_comment_post_query() {
+		$post_args = array(
+			'post_title' => 'toaster',
+		);
+
+		$post_id = $this->factory->post->create( $post_args );
+
+		$comment_args = array(
+			'comment_approved' => '1',
+			'comment_content'  => 'Hi!',
+			'comment_post_ID'  => $post_id,
+		);
+
+		$comment_id = $this->factory->comment->create( $comment_args );
+
+		$query = "{ comment(id: {$comment_id}) { post { title } } }";
+
+		$actual = $this->get_graphql_response( $query );
+		$expected = array(
+			'data' => array(
+				'comment' => array(
+					'post' => array(
+						'title' => 'toaster',
+					),
+				),
+			),
+		);
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
 	 * Tests the query for comment.
 	 */
 	public function test_comment_parent_query() {
