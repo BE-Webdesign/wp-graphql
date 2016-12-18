@@ -67,12 +67,14 @@ class CommentType extends BaseType {
 						'args' => [
 							// Limit and after are equivalent to per_page and offset.
 							'first' => array(
-								'type'        => $types->int(),
-								'description' => esc_html__( 'The number of comment children to query for. First is pretty much the same as LIMIT in SQL, or a `per_page` parameter in pagination.', 'wp-graphql' ),
+								'type'         => $types->int(),
+								'description'  => esc_html__( 'The number of comment children to query for. First is pretty much the same as LIMIT in SQL, or a `per_page` parameter in pagination.', 'wp-graphql' ),
+								'defaultValue' => 10,
 							),
 							'after' => array(
-								'type'        => $types->int(),
-								'description' => esc_html__( 'The offset for the query.', 'wp-graphql' ),
+								'type'         => $types->int(),
+								'description'  => esc_html__( 'The offset for the query.', 'wp-graphql' ),
+								'defaultValue' => 0,
 							),
 						],
 					],
