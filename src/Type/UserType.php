@@ -96,6 +96,23 @@ class UserType extends BaseType {
 							),
 						),
 					),
+					'posts'           => array(
+						'type'        => $types->listOf( $types->post() ),
+						'description' => esc_html__( 'Avatar object for user. The avatar object can be retrieved in different sizes by specifying the size argument.', 'wp-graphql' ),
+						'args' => [
+							// Limit and after are equivalent to per_page and offset.
+							'first' => array(
+								'type'         => $types->int(),
+								'description'  => esc_html__( 'The number of posts by this user to query for. First is pretty much the same as LIMIT in SQL, or a `per_page` parameter in pagination.', 'wp-graphql' ),
+								'defaultValue' => 10,
+							),
+							'after' => array(
+								'type'         => $types->int(),
+								'description'  => esc_html__( 'The offset for the query.', 'wp-graphql' ),
+								'defaultValue' => 0,
+							),
+						],
+					),
 				];
 			},
 			'interfaces' => [
@@ -267,5 +284,34 @@ class UserType extends BaseType {
 	 */
 	public function avatar( \WP_User $user, $args, AppContext $context ) {
 		return get_avatar_data( $user->ID, array( 'size', $args['size'] ) );
+	}
+
+	/**
+	 * Posts field resolver.
+	 *
+	 * Returns a collection of posts by the author.
+	 *
+	 * @param \WP_User   $user    User for the resolver.
+	 * @param array      $args    List of arguments for this resolver.
+	 * @param AppContext $context Context object for the Application.
+	 * @return string
+	 */
+	public function posts( \WP_User $user, $args, AppContext $context ) {
+		$query_args = array(
+			'author'        => $user->ID,
+			'no_found_rows' => true,
+		);
+
+		if ( isset( $args['first'] ) ) {
+			$query_args['posts_per_page'] = $args['first'];
+		}
+
+		if ( isset( $args['after'] ) ) {
+			$query_args['offset'] = $args['after'];
+		}
+
+		$posts_query = new \WP_Query( $query_args );
+		$posts = $posts_query->get_posts();
+		return ! empty( $posts ) ? $posts : null;
 	}
 }
