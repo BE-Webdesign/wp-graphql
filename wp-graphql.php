@@ -316,18 +316,29 @@ function graphql_build_post_type( $post_type ) {
 
 	if ( isset( $post_type->graphql_name ) ) {
 		$names['name'] = $post_type->graphql_name;
+	} else {
+		$names['name'] = $post_type->name;
 	}
 
 	if ( isset( $post_type->graphql_plural_name ) ) {
 		$names['plural_name'] = $post_type->graphql_plural_name;
+	} else {
+		// Yes I know, terrible code.
+		$names['plural_name'] = $post_type->name . 's';
 	}
 
 	if ( isset( $post_type->graphql_singular_type ) ) {
 		$names['singular_type'] = $post_type->graphql_singular_type;
+	} else {
+		// Yup some more.
+		$names['singular_type'] = ucfirst( $post_type->name );
 	}
 
 	if ( isset( $post_type->graphql_plural_type ) ) {
 		$names['plural_type'] = $post_type->graphql_plural_type;
+	} else {
+		// Yup some more bad code.
+		$names['plural_type'] = ucfirst( $post_type->name . 's' );
 	}
 
 	return $names;
