@@ -561,12 +561,37 @@ class Query_Test extends WP_UnitTestCase {
 
 		$term_id = $this->factory->term->create( $term_args );
 
-		$query = "{ term(id: {$term_id}) { taxonomy, name } }";
+		$query = "{ term(id: {$term_id}) { id, name } }";
 		$expected = array(
 			'data' => array(
 				'term' => array(
-					'taxonomy' => 'category',
-					'name'     => 'Test',
+					'id'   => $term_id,
+					'name' => 'Test',
+				),
+			),
+		);
+
+		$this->check_graphql_response( $query, $expected );
+	}
+
+	/**
+	 * Tests the query for term.
+	 */
+	public function test_term_taxonomy_edge_query() {
+		$term_args = array(
+			'taxonomy' => 'category',
+			'name'     => 'Test',
+		);
+
+		$term_id = $this->factory->term->create( $term_args );
+
+		$query = "{ term(id: {$term_id}) { taxonomy { name } } }";
+		$expected = array(
+			'data' => array(
+				'term' => array(
+					'taxonomy' => array(
+						'name' => 'Categories',
+					),
 				),
 			),
 		);
@@ -722,7 +747,6 @@ class Query_Test extends WP_UnitTestCase {
 						array( 'name' => 'name' ),
 						array( 'name' => 'slug' ),
 						array( 'name' => 'group' ),
-						array( 'name' => 'taxonomy_id' ),
 						array( 'name' => 'taxonomy' ),
 						array( 'name' => 'description' ),
 						array( 'name' => 'parent' ),
@@ -1360,18 +1384,16 @@ class Query_Test extends WP_UnitTestCase {
 
 		$term_id = $this->factory->term->create( $term_args );
 
-		$query = '{ terms{ name, taxonomy, count } }';
+		$query = '{ terms{ name, count } }';
 		$expected = array(
 			'data' => array(
 				'terms' => array(
 					array(
 						'name' => 'Test',
-						'taxonomy' => 'post_tag',
 						'count' => 0,
 					),
 					array(
 						'name' => 'Uncategorized',
-						'taxonomy' => 'category',
 						'count' => 0,
 					),
 				),

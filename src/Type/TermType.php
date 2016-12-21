@@ -29,13 +29,9 @@ class TermType extends BaseType {
 						'type'        => $types->string(),
 						'description' => esc_html__( 'Group for the term. Groups of terms can be used for performance enhancements while querying they act like a secondary index in SQL. The group field is equivalent to WP_Term->term_group or the `term_group` field in SQL.', 'wp-graphql' ),
 					),
-					'taxonomy_id'     => array(
-						'type'        => $types->id(),
-						'description' => esc_html__( "The id of the term's taxonomy. This field is equivalent to WP_Term->taxonomy_id", 'wp-graphql' ),
-					),
 					'taxonomy'        => array(
-						'type'        => $types->string(),
-						'description' => esc_html__( "The display name of the term's taxonomy. This field is equivalent to WP_Term->taxonomy", 'wp-graphql' ),
+						'type'        => $types->taxonomy(),
+						'description' => esc_html__( 'The taxonomy the term belongs to.', 'wp-graphql' ),
 					),
 					'description'     => array(
 						'type'        => $types->string(),
@@ -108,6 +104,10 @@ class TermType extends BaseType {
 
 	public function group( \WP_Term $term, $args, AppContext $context ) {
 		return $term->term_group;
+	}
+
+	public function taxonomy( \WP_Term $term, $args, AppContext $context ) {
+		return get_taxonomy( $term->taxonomy );
 	}
 
 	public function children( \WP_Term $term, $args, AppContext $context ) {
