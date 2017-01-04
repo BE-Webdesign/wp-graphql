@@ -3,6 +3,7 @@ namespace BEForever\WPGraphQL\Type;
 
 use BEForever\WPGraphQL\AppContext;
 use BEForever\WPGraphQL\TypeSystem;
+use BEForever\WPGraphQL\Schema\WPQuery;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -12,9 +13,19 @@ use GraphQL\Type\Definition\Type;
  */
 class QueryType extends BaseType {
 	/**
+	 * Schema data for WPQuery.
+	 *
+	 * @var WPQuery $wp_query_schema The schema data for WP_Query.
+	 */
+
+	/**
 	 * Object constructor.
+	 *
+	 * @param TypeSystem $types The WP GraphQL type system.
 	 */
 	public function __construct( TypeSystem $types ) {
+		$this->wp_query_schema = new WPQuery( $types );
+
 		$fields = array(
 			'user' => [
 				'type' => $types->user(),
@@ -224,11 +235,7 @@ class QueryType extends BaseType {
 			'type'        => $types->listOf( $types->post_object( $name ) ),
 			/* translators: %s Is the registered name of the post type. */
 			'description' => sprintf( esc_html__( 'WordPress features many different object types known as post types. This field resolves to a collection of the %s type.', 'wp-graphql' ), $post_type['name'] ),
-			'args' => [
-				// First and after are equivalent to per_page and offset.
-				'first' => $types->int(),
-				'after' => $types->int(),
-			],
+			'args' => $this->wp_query_schema->args(),
 			'resolve' => function( $value, $args, $context ) use ( $post_type ) {
 				$query_args = array(
 					'post_type' => $post_type['registered_name'],
@@ -281,6 +288,8 @@ class QueryType extends BaseType {
 		if ( isset( $args['after'] ) ) {
 			$query_args['offset'] = $args['after'];
 		}
+
+		$query_args = array_merge( $query_args, $args );
 
 		$posts_query = new \WP_Query( $query_args );
 		$posts = $posts_query->get_posts();
