@@ -1328,6 +1328,8 @@ class Query_Test extends WP_UnitTestCase {
 		$post_id = $this->factory->post->create( $post_args );
 
 		$query = '{ posts(first: 2) { id, title, content } }';
+
+		$actual = $this->get_graphql_response( $query );
 		$expected = array(
 			'data' => array(
 				'posts' => array(
@@ -1340,7 +1342,37 @@ class Query_Test extends WP_UnitTestCase {
 			),
 		);
 
-		$this->check_graphql_response( $query, $expected );
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Tests the query for posts.
+	 */
+	public function test_posts_query_args() {
+		$post_args = array(
+			'post_status' => 'publish',
+			'post_content' => 'Hi!',
+			'post_title' => 'Hello!',
+		);
+
+		$post_id = $this->factory->post->create( $post_args );
+
+		$query = '{ posts(first: 2) { id, title, content } }';
+
+		$actual = $this->get_graphql_response( $query );
+		$expected = array(
+			'data' => array(
+				'posts' => array(
+					array(
+						'id' => $post_id,
+						'title' => 'Hello!',
+						'content' => 'Hi!',
+					),
+				),
+			),
+		);
+
+		$this->assertEquals( $expected, $actual );
 	}
 
 	/**
