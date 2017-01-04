@@ -166,6 +166,16 @@ class WP_GraphQL_Schema_Test extends WP_UnitTestCase {
 				'description' => esc_html__( 'Restricts items from a collection based on a list of post stati', 'wp-graphql' ),
 			),
 			// Pagination parameters will be handled by WP GraphQL differently to make collections Relay compliant.
+			'first' => array(
+				'type'         => $this->types->int(),
+				'description'  => esc_html__( 'The pagination limit. This is equivalent to posts_per_page for WP_Query.', 'wp-graphql' ),
+				'defaultValue' => 10,
+			),
+			'after' => array(
+				'type'         => $this->types->int(),
+				'description'  => esc_html__( 'The pagination offset. This is equivalent to offset for WP_Query.', 'wp-graphql' ),
+				'defaultValue' => 0,
+			),
 			'ignore_sticky_posts' => array(
 				'type'         => $this->types->boolean(),
 				'description'  => esc_html__( 'A boolean flag for whether to ignore sticky posts.', 'wp-graphql' ),
